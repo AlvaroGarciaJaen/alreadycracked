@@ -9,9 +9,9 @@ colaborar añadiendo sus propios datos a la base de datos (previa comprobación)
 para que la API se vaya realimentando y vaya creciendo por sí sola.
 
 ## Implementación
-Esta API se escribirá en [Ruby](ruby-lang.org) usando la librería [Sinatra](sinatrarb.com).
+Esta API se escribirá en [Ruby](http://ruby-lang.org) usando la librería [Sinatra](http://sinatrarb.com).
 Se ha elegido este lenguaje principalmente por ser también open source. En
 cuanto a la base de datos, aún está por determinar.
 
 ## Referencias
-Está basada en la famosa web [CrackStation](crackstation.net)
+Está basada en la famosa web [CrackStation](http://crackstation.net)
