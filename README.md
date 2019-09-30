@@ -11,6 +11,19 @@ Para hacer uso de este microservicio, se implementará un API REST también como
 parte de este proyecto. Se espera así que cualquiera pueda desarrollar de manera
 fácil y cómoda cualquier tipo de interfaz a partir de este trabajo.
 
+## Motivación
+Desde hace muchos años, [CrackStation](http://crackstation.net) ha sido el
+referente en cuanto a base de datos de hashes a nivel mundial. No obstante,
+cuando se desarrolló allá por 2010, se diseñó como una página web al uso. En
+este proyecto, propongo desarrollar un microservicio que lleve a cabo la misma
+funcionalidad de CrackStation pero aplicando las nuevas tecnologías que
+actualmente funcionan tan bien. Una vez acabado su desarrollo (integración
+continua, código, despligue...) el usuario podrá hacer consultas de una gran
+variedad de funciones hash mediante un API REST. De esta manera, la comunidad
+podrá crear diferentes aplicaciones finales (páginas web, aplicaciones móviles,
+bots en redes sociales o aplicaciones de mensajería...) de la manera más cómoda
+y fiable posible.
+
 ## Implementación
 El lenguaje principal para este proyecto será [Ruby](https://www.ruby-lang.org).
 Se ha elegido este lenguaje por ser open source, por las librerías que tiene y
@@ -47,4 +60,4 @@ Para llevarlo a cabo, haremos uso de las siguientes librerias/herramientas:
 
 
 ## Referencias
-Está basada en la famosa web [CrackStation](http://crackstation.net)
+Está basada en la famosa web 
