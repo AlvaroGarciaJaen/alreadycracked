@@ -63,3 +63,7 @@ Para llevarlo a cabo, haremos uso de las siguientes librerias/herramientas:
     que pertenece ([Elastic](https://www.elastic.co/products/)), se ha elegido
     Logstash pensando a largo plazo por su fácil integración con el resto de 
     componentes del stack por si fuera necesario.
+
+-   [Travis CI](https://travis-ci.org/). Para comprobar mediante tests que
+    nuestro proyecto cumple los objetivos necesarios, usaremos Travis CI. Se
+    elige por su popularidad y su fácil integración con GitHub.
