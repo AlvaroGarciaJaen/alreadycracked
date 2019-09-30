@@ -57,7 +57,3 @@ Para llevarlo a cabo, haremos uso de las siguientes librerias/herramientas:
     rápida para consultas simples, sí o sí debemos ir a por una base de datos
     NoSQL. Se ha elegido MongoDB por ser la más popular, lo que significa mayor 
     documentación en el caso de que nos encontremos algún problema
-
-
-## Referencias
-Está basada en la famosa web 
