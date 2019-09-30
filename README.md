@@ -57,3 +57,9 @@ Para llevarlo a cabo, haremos uso de las siguientes librerias/herramientas:
     rápida para consultas simples, sí o sí debemos ir a por una base de datos
     NoSQL. Se ha elegido MongoDB por ser la más popular, lo que significa mayor 
     documentación en el caso de que nos encontremos algún problema
+
+-   [Logstash](https://www.elastic.co/products/logstash). Necesitamos llevar un
+    registro de eventos del microservicio. Debido a su popularidad y al stack al
+    que pertenece ([Elastic](https://www.elastic.co/products/)), se ha elegido
+    Logstash pensando a largo plazo por su fácil integración con el resto de 
+    componentes del stack por si fuera necesario.
