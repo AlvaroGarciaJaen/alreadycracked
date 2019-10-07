@@ -1,4 +1,4 @@
-require_relative '../alreadycracked.rb'
+require_relative '../lib/alreadycracked.rb'
 require 'test/unit'
 
 class TestAlreadyCracked < Test::Unit::TestCase
