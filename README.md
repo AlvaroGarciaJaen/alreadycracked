@@ -1,4 +1,5 @@
 # alreadycracked
+[![Build Status](https://travis-ci.com/AlvaroGarciaJaen/alreadycracked.svg?branch=master)](https://travis-ci.com/AlvaroGarciaJaen/alreadycracked)
 
 ## Descripción
 Se pretende desarrollar un microservicio que recoja hashes de diferentes
