@@ -1,6 +1,7 @@
 # alreadycracked
+![GitHub](https://img.shields.io/github/license/AlvaroGarciaJaen/alreadycracked)
 [![Build Status](https://travis-ci.com/AlvaroGarciaJaen/alreadycracked.svg?branch=master)](https://travis-ci.com/AlvaroGarciaJaen/alreadycracked)
-![GitHub](https://img.shields.io/github/license/alvarogarciajaen/alreadycracked)
+[![CircleCI](https://circleci.com/gh/AlvaroGarciaJaen/alreadycracked.svg?style=svg)](https://circleci.com/gh/AlvaroGarciaJaen/alreadycracked)
 
 ## Descripción
 Se pretende desarrollar un microservicio que recoja hashes de diferentes
