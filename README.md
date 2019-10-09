@@ -4,7 +4,7 @@
 [![CircleCI](https://circleci.com/gh/AlvaroGarciaJaen/alreadycracked.svg?style=svg)](https://circleci.com/gh/AlvaroGarciaJaen/alreadycracked)
 
 ## Descripción
-Microservicio escrito en Ruby que recoje hashes de diferentes
+Microservicio escrito en Ruby que recoge hashes de diferentes
 algoritos (MD5, SHA1...) junto con su correspondiente en texto plano. Se podrá
 tanto consultar un hash para obtener el texto plano, como añadir aquellas
 correspondencias que no se encuentren. De esta manera se pretende que poco a

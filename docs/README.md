@@ -26,7 +26,7 @@ Desde hace muchos años, [CrackStation](http://crackstation.net) ha sido el
 referente en cuanto a base de datos de hashes a nivel mundial. No obstante,
 cuando se desarrolló allá por 2010, se diseñó como una página web al uso. En
 este proyecto, propongo desarrollar un microservicio que lleve a cabo la misma
-funcionalidad de CrackStation pero aplicando las nuevas tecnologías que
+funcionalidad que CrackStation pero aplicando las nuevas tecnologías que
 actualmente funcionan tan bien. Una vez acabado su desarrollo (integración
 continua, código, despligue...) el usuario podrá hacer consultas de una gran
 variedad de funciones hash mediante un API REST. De esta manera, la comunidad
@@ -46,7 +46,7 @@ El lenguaje principal para este proyecto será [Ruby](https://www.ruby-lang.org)
 Se ha elegido este lenguaje por ser open source, por las librerías que tiene y
 que nos serán útiles para desarrollar este proyecto y por ser un lenguaje cómodo
 y fácil a la hora de escribir y leer.
-Para llevarlo a cabo, haremos uso de las siguientes librerias/herramientas:
+Para llevarlo a cabo, haremos uso de las siguientes librerías/herramientas:
 
 -   [Sinatra](http://sinatrarb.com). Se trata de un microframework diseñado para
     crear aplicaciones web en Ruby con un mínimo esfuerzo. Podríamos considerar
@@ -109,12 +109,12 @@ configuración](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/.
 ```yaml
 language: ruby
 ```
-De hecho, en principio tampoco sería necesario ni especifiar el lenguaje, pues
+De hecho, en principio tampoco sería necesario especifiar el lenguaje, pues
 en Travis Ruby es el lenguaje por defecto. Tampoco hace falta especificar la
 versión, ya que comprueba directamente al archivo
 [.ruby-version](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/.ruby-version).
  Tampoco es necesario especificar cómo pasar los test: por defecto, Travis
-ejecuta _rake_ para proyectos escrito en Ruby y, por defecto, tenemos que
+ejecuta _rake_ para proyectos escritos en Ruby y, por defecto, tenemos que
 nuestro
 [Rakefile](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/Rakefile)
 ejecuta los tests.
@@ -139,7 +139,7 @@ jobs:
           name: Run tests
           command: rake
 ```
-En esta ocasión, si es necesario darle más información a CircleCI sobre lo que
+En esta ocasión, sí es necesario darle más información a CircleCI sobre lo que
 tiene que hacer con nuestro proyecto. Como podemos ver en el archivo de
 configuración, CircleCI tiene un sistema basado en contenedores. En este caso le
 decimos que use el de Ruby con la versión 2.6.5 de su propio repositorio. Una
@@ -160,16 +160,19 @@ CircleCI), en mi opinión ambos son muy potentes pero cada uno tiene sus puntos
 fuertes:
 -   CircleCI es mucho más rápido que Travis. Tras probar ambos, CircleCI
     devuelve resultados en unos 5 segundos mientras que Travis llega al minuto
-    casi. Compañeros comentan que se debe a que mi proyecto no cuenta con
-    dependencias y por eso es capaza de CircleCI hacerlo tan rápido. Conforme el
+    casi. Algunos compañeros comentan que se debe a que mi proyecto no cuenta con
+    dependencias y por eso es capaz CircleCI de hacerlo tan rápido. Conforme el
     proyecto vaya creciendo veremos como se adapta. No obstante, las VM de
-    Travis tardan muchísimo en arrancar en comparación a su competidor.
+    Travis tardan muchísimo en arrancar en comparación a su competidor. Quizás
+    usando Docker también en Travis se mejorarían los resultados indicando un
+    lenguaje _minimal_, pero esto no quita que la velocidad con la que CircleCI es
+    capaz de arrancar una máquina no tiene ni punto de comparación.
 -   Desde el principio, el archivo de configuración de Travis me parece mucho
-    más sencillo de entender que el de CircleCI. Claro está, Esto variará de una
+    más sencillo de entender que el de CircleCI. Claro está, esto variará de una
     persona a otra. 
 -   La interfaz de Travis parece mucho más robusta mientras que la de CircleCI
     me ha dado pequeños errores temporales, como ejecución del sistema con
     archivos de configuración desactualizados.
 
-Obviamente, estas son impresiones generales que no tienen por qué coincidir con
+Obviamente, estas son impresiones personales que no tienen por qué coincidir con
 todo el mundo.
