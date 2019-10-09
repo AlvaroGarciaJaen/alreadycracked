@@ -13,6 +13,11 @@ class TestAlreadyCracked < Test::Unit::TestCase
     assert_equal(hash_sha256, AlreadyCracked.new.compute_digest('sha256', plain), 'SHA256 digest failed')
   end
 
+  def test_detect_digest
+    assert_equal('md5', AlreadyCracked.new.detect_digest(hash_md5), 'MD5 digest detection failed')
+    assert_equal('sha1', AlreadyCracked.new.detect_digest(hash_sha1), 'SHA1 digest detection failed')
+    assert_equal('sha256', AlreadyCracked.new.detect_digest(hash_sha256), 'SHA256 digest detection failed')
+  end
 
 =begin
   def test_failure
