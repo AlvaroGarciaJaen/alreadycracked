@@ -1,2 +1,4 @@
 language: ruby
-script: rake test --trace
+script:
+    - bundle install
+    - rake test --trace
