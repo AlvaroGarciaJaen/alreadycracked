@@ -1,4 +1,5 @@
 require_relative '../lib/acapp.rb'
+require 'sinatra'
 require 'test/unit'
 require 'rack/test'
 
