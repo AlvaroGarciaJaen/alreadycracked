@@ -30,7 +30,8 @@ class AlreadyCracked
 
   def get_plain(hash)
     # TODO: use MongoDB
-    hashes = JSON.parse File.read 't/sample.json'
+    path = File.join File.dirname(__FILE__), '../t/sample.json'
+    hashes = JSON.parse File.read path
 
     hashes[hash]
   end
