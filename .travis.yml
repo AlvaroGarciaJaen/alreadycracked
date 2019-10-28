@@ -1,3 +1,3 @@
 language: ruby
 install: bundle install
-script: rake test_unit
+script: rake test_func
