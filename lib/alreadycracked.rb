@@ -12,6 +12,10 @@ class AlreadyCracked
     end
   end
 
+  def get_hash_types
+    ['md5', 'sha1', 'sha256']
+  end
+
   def detect_digest(hash)
     case hash.length
     when 32
