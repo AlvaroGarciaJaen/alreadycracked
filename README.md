@@ -15,17 +15,27 @@ parte de este proyecto. Se espera así que cualquiera pueda desarrollar de maner
 fácil y cómoda cualquier tipo de interfaz a partir de este trabajo.
 
 ## Instalación
-Por el momento, _alreadycracked_ no hace uso de librerías que no formen parte
-del core de Ruby. Basta con tener Ruby instalado para usarlo. Se recomienda la
-versión latest (2.6.5) de Ruby, pues es la única versión para la que se corren
-los tests actualmente.
+Para instalar las gemas necesarias para el microservicio ejecutamos:
+
+```bash
+bundle install
+```
 
 ## Uso
-_Aún no está definida la ejecución_
+Para poner en marcha el microservicio ejecutamos:
+```bash
+rake start
+```
+
+Para poner parar el microservicio ejecutamos:
+```bash
+rake stop
+```
 
 ## Tests
+Para correr todos los tests y comprobar que todo está bien ejecutamos:
 ```bash
-rake
+rake test
 ```
 
 ## Información adicional

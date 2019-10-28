@@ -85,6 +85,68 @@ Para llevarlo a cabo, haremos uso de las siguientes librerías/herramientas:
     nuestro proyecto cumple los objetivos necesarios, usaremos Travis CI. Se
     elige por su popularidad y su fácil integración con GitHub.
 
+## Herramienta de construcción
+Al desarrollarse en Ruby, se ha elegido 
+[Rakefile](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/Rakefile)
+como herramienta de construcción:
+```ruby
+require 'rake/testtask'
+
+Rake::TestTask.new(:test) do |t|
+  t.libs << "t"
+  t.test_files = FileList['t/test*.rb']
+  t.verbose = true
+end
+
+Rake::TestTask.new(:test_unit) do |t|
+  t.libs << "t"
+  t.test_files = FileList['t/test_unit.rb']
+  t.verbose = true
+end
+
+Rake::TestTask.new(:test_func) do |t|
+  t.libs << "t"
+  t.test_files = FileList['t/test_func.rb']
+  t.verbose = true
+end
+
+desc "Run service"
+task :start do
+  sh 'rackup -D -p 9292'
+end
+
+desc "Stop service"
+task :stop do
+  pid = `lsof -i :9292 -sTCP:LISTEN -t`
+  sh "kill -9 #{pid}"
+end
+
+task :default => :start
+```
+
+Se llama con `rake` y se han definido las
+siguientes tareas:
+-   `rake` o `rake start`: Inicia el servicio 
+Para iniciar el servicio lo hacemos con la herramienta rackup en modo demonio
+para que se ejecute en segundo plano
+
+-   `rake stop`: Para el servicio 
+Para parar el servicio debemos buscar su pid con lsof (ya que lo unico que
+sabemos del proceso es que escucha en el puerto 9292 y lsof nos permite obtener
+el pid a partir de estos datos)
+
+-   `rake test`: Ejecuta todo los tests 
+Se ejecutan tanto los tests unitarios como funcionales
+
+-   `rake test_unit`: Ejecuta todo los tests unitarios 
+Se ejecutan únicamente los tests unitario para comprobar que la lógica de
+nuestro servicio funciona correctamente
+
+-   `rake test_func`: Ejecuta todo los tests funcionales 
+Se ejecutan únicamente los tests funcionales para comprobar que la API REST
+funciona correctamente
+
+
 ## Integración continua
 Para implementar una correcta integración continua debemos hacer un desarrollo
 guiado por pruebas (TDD). Se han escrito tests para cubrir la
@@ -94,7 +156,9 @@ guiado por pruebas (TDD). Se han escrito tests para cubrir la
 -   El texto plano que se devuelve a partir de un hash es el correcto.
 
 Para hacerlo, se ha usado el framework 
-[test-unit](https://ruby-doc.org/stdlib-1.8.7/libdoc/test/unit/rdoc/Test/Unit.html). 
+[test-unit](https://ruby-doc.org/stdlib-1.8.7/libdoc/test/unit/rdoc/Test/Unit.html) 
+ y [rack-test](https://github.com/rack-test/rack-test) para probar la API REST
+de manera nativa, interactuando con la clase directamente.
 Los tests pueden verse
 [aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/tree/master/t)
 Para automatizar la ejecución de tests se está utilizando [Travis
@@ -108,16 +172,17 @@ que tenemos muchos ejemplos sobre como realizar una correcta configuración.
 configuración](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/.travis.yml) es muy sencillo:
 ```yaml
 language: ruby
+script:
+    - bundle install
+    - rake test_unit
 ```
 De hecho, en principio tampoco sería necesario especifiar el lenguaje, pues
 en Travis Ruby es el lenguaje por defecto. Tampoco hace falta especificar la
 versión, ya que comprueba directamente al archivo
 [.ruby-version](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/.ruby-version).
- Tampoco es necesario especificar cómo pasar los test: por defecto, Travis
-ejecuta _rake_ para proyectos escritos en Ruby y, por defecto, tenemos que
-nuestro
-[Rakefile](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/Rakefile)
-ejecuta los tests.
+Como vamos a utilizar dos plataformas para correr tests, lo que haremos será
+dividirlos en dos partes. Por un lado correremos los tests unitarios (aquí),
+y por otro los tests funcionales (CircleCI).
 
 ### CircleCI
 En segundo lugar, se ha configurado CircleCI para lanzar los tests de manera
@@ -136,8 +201,12 @@ jobs:
       - checkout
 
       - run:
+          name: Install gems
+          command: bundle install
+
+      - run:
           name: Run tests
-          command: rake
+          command: rake test_func
 ```
 En esta ocasión, sí es necesario darle más información a CircleCI sobre lo que
 tiene que hacer con nuestro proyecto. Como podemos ver en el archivo de
