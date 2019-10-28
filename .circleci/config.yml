@@ -8,5 +8,9 @@ jobs:
       - checkout
 
       - run:
+          name: Install gems
+          command: bundle install
+
+      - run:
           name: Run tests
           command: rake test --trace
