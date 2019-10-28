@@ -6,4 +6,15 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
-task :default => :test
+desc "Run service"
+task :start do
+  sh 'rackup -D'
+end
+
+desc "Stop service"
+task :stop do
+  pid = `lsof -i :9292 -sTCP:LISTEN -t`
+  sh "kill -9 #{pid}"
+end
+
+task :default => :start
