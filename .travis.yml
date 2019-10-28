@@ -1,4 +1,4 @@
 language: ruby
 script:
     - bundle install
-    - rake test --trace
+    - rake test_unit

@@ -13,4 +13,4 @@ jobs:
 
       - run:
           name: Run tests
-          command: rake test --trace
+          command: rake test_func
