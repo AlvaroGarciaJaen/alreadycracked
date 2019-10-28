@@ -24,4 +24,8 @@ class TestAlreadyCracked < Test::Unit::TestCase
   def test_get_plain
     assert_equal(@plain, AlreadyCracked.new.get_plain(@hash_md5), 'Getting plain text failed')
   end
+
+  def test_list_hash_types
+    assert_equal(['md5', 'sha1', 'sha256'], AlreadyCracked.new.get_hash_types, 'Getting hash types failed')
+  end
 end
