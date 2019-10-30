@@ -328,7 +328,6 @@ como comunicarnos con ella:
   "plain": "helloworld",
   "hash": "fc5e038d38a57032085441e7fe7010b0"
 }
-
 ```
 
 ### Obtener texto plano a partir de un hash
@@ -337,9 +336,11 @@ como comunicarnos con ella:
 -   `GET /crack/:hash`
 
 #### Parámetros
-| Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo |
-|--------|-------------|-------------|-------------------|---------|
-| hash | Sí | Hash que se busca | | fc5e038d38a57032085441e7fe7010b0 |
+| Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo | 
+
+|--------|-------------|-------------|-------------------|---------| 
+
+| hash | Sí | Hash que se busca | | fc5e038d38a57032085441e7fe7010b0 | 
 
 #### Resultado
 `curl localhost:9292/crack/fc5e038d38a57032085441e7fe7010b0`
