@@ -18,6 +18,11 @@ Rake::TestTask.new(:test_func) do |t|
   t.verbose = true
 end
 
+desc "Install gems"
+task :install do
+  sh 'bundle install'
+end
+
 desc "Run service"
 task :start do
   sh 'rackup -D'
