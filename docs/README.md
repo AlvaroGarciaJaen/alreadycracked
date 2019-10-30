@@ -110,9 +110,14 @@ Rake::TestTask.new(:test_func) do |t|
   t.verbose = true
 end
 
+desc "Install gems"
+task :install do
+  sh 'bundle install'
+end
+
 desc "Run service"
 task :start do
-  sh 'rackup -D -p 9292'
+  sh 'rackup -D'
 end
 
 desc "Stop service"
@@ -126,26 +131,36 @@ task :default => :start
 
 Se llama con `rake` y se han definido las
 siguientes tareas:
--   `rake` o `rake start`: Inicia el servicio 
-Para iniciar el servicio lo hacemos con la herramienta rackup en modo demonio
-para que se ejecute en segundo plano
+-   `rake` o `rake start`: Inicia el servicio web
 
--   `rake stop`: Para el servicio 
-Para parar el servicio debemos buscar su pid con lsof (ya que lo unico que
-sabemos del proceso es que escucha en el puerto 9292 y lsof nos permite obtener
-el pid a partir de estos datos)
+Para iniciar el servicio lo hacemos con la herramienta rackup en modo demonio
+para que se ejecute en segundo plano. Escucha en el puerto 9292 que es el puerto
+estándar. Para su despliegue en PaaS se usará una variable de entorno, pero
+mientras tanto con fijar uno es suficiente.
+
+-   `rake stop`: Para el servicio web
+
+Para parar el servicio debemos hacerlo a través de su pid. Como lo único que
+sabemos del proceso es que se encuentra escuchando peticiones TCP en el puerto 9292,
+hay una herramienta llamada lsof que nos permite buscar un pid a partir de estos
+datos.
 
 -   `rake test`: Ejecuta todo los tests 
-Se ejecutan tanto los tests unitarios como funcionales
+
+Se ejecutan tanto los tests unitarios como funcionales.
 
 -   `rake test_unit`: Ejecuta todo los tests unitarios 
+
 Se ejecutan únicamente los tests unitario para comprobar que la lógica de
-nuestro servicio funciona correctamente
+nuestro servicio funciona correctamente.
 
 -   `rake test_func`: Ejecuta todo los tests funcionales 
-Se ejecutan únicamente los tests funcionales para comprobar que la API REST
-funciona correctamente
 
+Se ejecutan únicamente los tests funcionales para comprobar que la API REST
+funciona correctamente. 
+
+Se ha decidido dar la posibilidad de ejecutar los tests por separado para
+aprovechar el uso de las dos plataformas de CI.
 
 ## Integración continua
 Para implementar una correcta integración continua debemos hacer un desarrollo
@@ -172,17 +187,18 @@ que tenemos muchos ejemplos sobre como realizar una correcta configuración.
 configuración](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/.travis.yml) es muy sencillo:
 ```yaml
 language: ruby
-script:
-    - bundle install
-    - rake test_unit
+install: rake install
+script: rake test_unit
 ```
-De hecho, en principio tampoco sería necesario especifiar el lenguaje, pues
-en Travis Ruby es el lenguaje por defecto. Tampoco hace falta especificar la
-versión, ya que comprueba directamente al archivo
-[.ruby-version](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/.ruby-version).
+Especificamos el lenguaje con la etiqueta 'language', con la etiqueta install
+indicamos la orden con la que debe instalarse lo necesario para realizar los
+tests. Como tenemos la tarea install en nuestro [Rakefile](#Herramienta-de-construcción),
+ usaremos esto. Por último le decimos cómo ejecutar los tests.
 Como vamos a utilizar dos plataformas para correr tests, lo que haremos será
 dividirlos en dos partes. Por un lado correremos los tests unitarios (aquí),
 y por otro los tests funcionales (CircleCI).
+No hace falta especificar la versión, ya que comprueba directamente al archivo
+[.ruby-version](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/.ruby-version).
 
 ### CircleCI
 En segundo lugar, se ha configurado CircleCI para lanzar los tests de manera
@@ -202,18 +218,23 @@ jobs:
 
       - run:
           name: Install gems
-          command: bundle install
+          command: rake install
 
       - run:
           name: Run tests
           command: rake test_func
+
+      - run:
+          name: Start web service
+          command: rake start
 ```
-En esta ocasión, sí es necesario darle más información a CircleCI sobre lo que
-tiene que hacer con nuestro proyecto. Como podemos ver en el archivo de
+Como podemos ver en el archivo de
 configuración, CircleCI tiene un sistema basado en contenedores. En este caso le
 decimos que use el de Ruby con la versión 2.6.5 de su propio repositorio. Una
 vez con la imagen corriendo, ya puede lanzar comandos (_rake_ en este caso para
-ejecutar los tests).
+ejecutar los tests). Instalamos las gemas con `rake install`, ejecutamos los
+tests funcionales con `rake test_func` y probamos a levantar el servicio con
+`rake start`.
 
 ### Conclusiones
 Los sistemas de integración continua me han parecido una herramienta muy útil,
@@ -245,3 +266,86 @@ fuertes:
 
 Obviamente, estas son impresiones personales que no tienen por qué coincidir con
 todo el mundo.
+
+Al final, tanto Travis, como Circle, como cualquier otra plataforma, lo único que
+hacen es ejecutar un programa y
+en función del código que devuelva, actuar en consecuencia. Cuando un programa
+se ha ejecutado correctamente devuelve 0, si ha habido algún tipo de error
+devuelve un número diferente a 0. Teniendo esto en mente, podemos ejecutar
+cualquier cosa (como en este caso, que estamos levantando un servicio). En otras
+palabras, los tests no son nada especial, sigue siendo un proceso que devuelve 0
+si todos los tests se han ejecutado correctamente y otro código si ha habido
+algún tipo de error.
+
+## API REST
+En este apartado veremos los diferentes endpoints de nuestra API REST para saber
+como comunicarnos con ella:
+
+### Raíz
+
+#### Recurso URL
+-   `GET /`
+
+#### Ejemplo
+`curl localhost:9292/`
+```json
+{
+  "status": "http://localhost:9292/status",
+  "get_hash": "http://localhost:9292/hash/:type/:plain"
+}
+```
+
+
+### Obtener estado del API REST
+
+#### Recurso URL
+-   `GET /status`
+
+#### Ejemplo
+`curl localhost:9292/status`
+```json
+{
+  "status": "OK"
+}
+```
+
+### Obtener hash a partir de un texto plano
+
+#### Recurso URL
+-   `GET /hash/:type/:plain`
+
+#### Parámetros
+| Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo |
+|--------|-------------|-------------|-------------------|---------|
+| type | Sí | Tipo de hash que se quiere obtener, actualmente está MD5, SHA1 y SHA256 | | md5 |
+| plain | Sí | Texto plano al que se le quiere aplicar la función hash | | helloworld |
+
+#### Resultado
+`curl localhost:9292/hash/md5/helloworld`
+```json
+{
+  "type": "md5",
+  "plain": "helloworld",
+  "hash": "fc5e038d38a57032085441e7fe7010b0"
+}
+
+```
+
+### Obtener texto plano a partir de un hash
+
+#### Recurso URL
+-   `GET /crack/:hash`
+
+#### Parámetros
+| Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo |
+|--------|-------------|-------------|-------------------|---------|
+| hash | Sí | Hash que se busca | | fc5e038d38a57032085441e7fe7010b0 |
+
+#### Resultado
+`curl localhost:9292/crack/fc5e038d38a57032085441e7fe7010b0`
+```json
+{
+  "hash": "fc5e038d38a57032085441e7fe7010b0",
+  "plain": "helloworld"
+}
+```
