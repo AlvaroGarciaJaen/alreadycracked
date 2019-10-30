@@ -9,8 +9,12 @@ jobs:
 
       - run:
           name: Install gems
-          command: bundle install
+          command: rake install
 
       - run:
           name: Run tests
           command: rake test_func
+
+      - run:
+          name: Start web service
+          command: rake start
