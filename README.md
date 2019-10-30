@@ -15,25 +15,24 @@ parte de este proyecto. Se espera así que cualquiera pueda desarrollar de maner
 fácil y cómoda cualquier tipo de interfaz a partir de este trabajo.
 
 ## Instalación
-Para instalar las gemas necesarias para el microservicio ejecutamos:
-
+Instalar las gemas:
 ```bash
-bundle install
+rake install
 ```
 
 ## Uso
-Para poner en marcha el microservicio ejecutamos:
+Iniciar el microservicio:
 ```bash
 rake start
 ```
 
-Para poner parar el microservicio ejecutamos:
+Parar el microservicio:
 ```bash
 rake stop
 ```
 
 ## Tests
-Para correr todos los tests y comprobar que todo está bien ejecutamos:
+Ejecutar todos los tests:
 ```bash
 rake test
 ```
