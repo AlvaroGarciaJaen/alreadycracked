@@ -15,30 +15,23 @@ parte de este proyecto. Se espera así que cualquiera pueda desarrollar de maner
 fácil y cómoda cualquier tipo de interfaz a partir de este trabajo.
 
 ## Instalación
-Como herramienta de construcción, se hace uso de:
-```
-buildtool: Rakefile
-```
-
-Instalar las gemas:
+-   Instalar las gemas:
 ```bash
 rake install
 ```
 
 ## Uso
-Iniciar el servicio web:
+-   Iniciar el servicio web:
 ```bash
 rake start
 ```
 
-Parar el servicio web:
+-   Parar el servicio web:
 ```bash
 rake stop
 ```
 
----
-
-Cuando se inicia el servidor, por defecto escucha en el puerto 9292. Puede
+-   Cuando se inicia el servidor, por defecto escucha en el puerto 9292. Puede
 consultarse la funcionalidad básica de la siguiente manera:
 ```bash
 curl localhost:9292
@@ -48,12 +41,17 @@ Para más información, consultar la [documentación
 adicional](https://alvaro.network/alreadycracked/#api-rest).
 
 ## Tests
-Ejecutar todos los tests:
+-   Ejecutar todos los tests:
 ```bash
 rake test
 ```
 
 ## Documentación adicional
+Como herramienta de construcción, se hace uso de:
+```
+buildtool: Rakefile
+```
+
 -   [Descripción](https://alvaro.network/alreadycracked/#descripción)
 -   [Motivación](https://alvaro.network/alreadycracked/#motivación)
 -   [Funcionalidad](https://alvaro.network/alreadycracked/#funcionalidad)
