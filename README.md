@@ -26,6 +26,13 @@ Iniciar el microservicio:
 rake start
 ```
 
+Parar el microservicio:
+```bash
+rake stop
+```
+
+---
+
 Cuando se inicia el servidor, por defecto escucha en el puerto 9292. Puede
 consultarse la funcionalidad básica de la siguiente manera:
 ```bash
@@ -34,11 +41,6 @@ curl localhost:9292
 
 Para más información, consultar la [documentación
 adicional](https://alvaro.network/alreadycracked/#api-rest).
-
-Parar el microservicio:
-```bash
-rake stop
-```
 
 ## Tests
 Ejecutar todos los tests:
