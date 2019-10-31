@@ -291,7 +291,8 @@ como comunicarnos con ella:
 ```json
 {
   "status": "http://localhost:9292/status",
-  "get_hash": "http://localhost:9292/hash/:type/:plain"
+  "get_hash": "http://localhost:9292/hash/:type/:plain",
+  "crack": "http://localhost:9292/crack/:hash"
 }
 ```
 
