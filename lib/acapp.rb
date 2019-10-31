@@ -6,7 +6,8 @@ class ACApp < Sinatra::Base
   get '/' do
     options = {
       :status => url + 'status',
-      :get_hash => url + 'hash/:type/:plain'
+      :get_hash => url + 'hash/:type/:plain',
+      :crack => url + 'crack/:hash'
     }
     json options
   end
@@ -26,7 +27,7 @@ class ACApp < Sinatra::Base
     else
       status 404
       json :message => 'Hash function not found',
-        :documentation_url => 'https://alvaro.network/alreadycracked/'
+        :documentation_url => 'https://alvaro.network/alreadycracked/#obtener-hash-a-partir-de-un-texto-plano'
     end
   end
 
@@ -44,6 +45,6 @@ class ACApp < Sinatra::Base
   error Sinatra::NotFound do
     status 404
     body json :message => 'Not found',
-      :documentation_url => 'https://alvaro.network/alreadycracked/'
+      :documentation_url => 'https://alvaro.network/alreadycracked/#api-rest'
   end
 end
