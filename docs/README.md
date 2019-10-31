@@ -315,10 +315,13 @@ como comunicarnos con ella:
 -   `GET /hash/:type/:plain`
 
 #### Parámetros
+
+
 | Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo |
 |--------|-------------|-------------|-------------------|---------|
 | type | Sí | Tipo de hash que se quiere obtener, actualmente está MD5, SHA1 y SHA256 | | md5 |
 | plain | Sí | Texto plano al que se le quiere aplicar la función hash | | helloworld |
+
 
 #### Resultado
 `curl localhost:9292/hash/md5/helloworld`
