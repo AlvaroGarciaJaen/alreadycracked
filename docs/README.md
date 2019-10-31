@@ -340,7 +340,6 @@ como comunicarnos con ella:
 
 | Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo |
 
-
 |--------|--------|--------|--------|--------|
 
 
