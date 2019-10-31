@@ -337,6 +337,7 @@ como comunicarnos con ella:
 
 #### Parámetros
 
+
 | Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo |     
 | --- | --- | --- | --- | --- |
 
