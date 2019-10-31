@@ -317,10 +317,10 @@ como comunicarnos con ella:
 #### Parámetros
 
 
-| Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo |
-|--------|-------------|-------------|-------------------|---------|
-| type | Sí | Tipo de hash que se quiere obtener, actualmente está MD5, SHA1 y SHA256 | | md5 |
-| plain | Sí | Texto plano al que se le quiere aplicar la función hash | | helloworld |
+| Nombre | Obligatorio | Descripción | Ejemplo |
+|--------|-------------|-------------|---------|
+| type | Sí | Tipo de hash que se quiere obtener, actualmente está MD5, SHA1 y SHA256 | md5 |
+| plain | Sí | Texto plano al que se le quiere aplicar la función hash | helloworld |
 
 
 #### Resultado
@@ -341,9 +341,9 @@ como comunicarnos con ella:
 #### Parámetros
 
 
-| Nombre | Obligatorio | Descripción | Valor por defecto | Ejemplo |
-|--------|--------|--------|--------|--------|
-| hash | Sí | Hash que se busca | | fc5e038d38a57032085441e7fe7010b0 |
+| Nombre | Obligatorio | Descripción | Ejemplo |
+|--------|-------------|-------------|---------|
+| hash | Sí | Hash que se busca | fc5e038d38a57032085441e7fe7010b0 |
 
 
 #### Resultado
