@@ -17,6 +17,7 @@ class AlreadyCrackedFuncTest < Test::Unit::TestCase
     body = JSON last_response.body
     assert body['status'].include? '/status'
     assert body['get_hash'].include? '/hash/:type/:plain'
+    assert body['crack'].include? '/crack/:hash'
   end
 
   def test_status
@@ -60,7 +61,7 @@ class AlreadyCrackedFuncTest < Test::Unit::TestCase
     assert_equal last_response.content_type, 'application/json'
     body = JSON last_response.body
     assert_equal 'Hash function not found', body['message']
-    assert_equal 'https://alvaro.network/alreadycracked/', body['documentation_url']
+    assert_equal 'https://alvaro.network/alreadycracked/#obtener-hash-a-partir-de-un-texto-plano', body['documentation_url']
   end
 
   def test_not_found_route
@@ -69,6 +70,6 @@ class AlreadyCrackedFuncTest < Test::Unit::TestCase
     assert_equal last_response.content_type, 'application/json'
     body = JSON last_response.body
     assert_equal 'Not found', body['message']
-    assert_equal 'https://alvaro.network/alreadycracked/', body['documentation_url']
+    assert_equal 'https://alvaro.network/alreadycracked/#api-rest', body['documentation_url']
   end
 end
