@@ -15,6 +15,11 @@ parte de este proyecto. Se espera así que cualquiera pueda desarrollar de maner
 fácil y cómoda cualquier tipo de interfaz a partir de este trabajo.
 
 ## Instalación
+Como herramienta de construcción, se hace uso de:
+```
+buildtool: Rakefile
+```
+
 Instalar las gemas:
 ```bash
 rake install
