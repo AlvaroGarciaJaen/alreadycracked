@@ -34,7 +34,7 @@ rake stop
 -   Cuando se inicia el servidor, por defecto escucha en el puerto 9292. Puede
 consultarse la funcionalidad básica de la siguiente manera:
 ```bash
-curl localhost:9292
+curl http://localhost:9292
 ```
 
 Para más información, consultar la [documentación

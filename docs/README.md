@@ -14,7 +14,7 @@
 
 ## Descripción
 Se pretende desarrollar un microservicio que recoja hashes de diferentes
-algoritos (MD5, SHA1...) junto con su correspondiente en texto plano. El usuario
+algoritmos (MD5, SHA1...) junto con su correspondiente en texto plano. El usuario
 podrá tanto consultar un hash para obtener el texto plano, como añadir aquellas
 correspondencias que no se encuentren. De esta manera se pretende que poco a
 poco el conjunto de datos vaya creciendo.
@@ -175,9 +175,10 @@ guiado por pruebas (TDD). Se han escrito tests para cubrir la
 Para hacerlo, se ha usado el framework 
 [test-unit](https://ruby-doc.org/stdlib-1.8.7/libdoc/test/unit/rdoc/Test/Unit.html) 
  y [rack-test](https://github.com/rack-test/rack-test) para probar la API REST
-de manera nativa, interactuando con la clase directamente.
+de manera nativa, interactuando con la clase directamente. 
 Los tests pueden verse
-[aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/tree/master/t)
+[aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/tree/master/t) 
+
 Para automatizar la ejecución de tests se está utilizando [Travis
 CI](https://travis-ci.com) y [CircleCI](https://circleci.com/):
 
@@ -274,7 +275,7 @@ hacen es ejecutar un programa y
 en función del código que devuelva, actuar en consecuencia. Cuando un programa
 se ha ejecutado correctamente devuelve 0, si ha habido algún tipo de error
 devuelve un número diferente a 0. Teniendo esto en mente, podemos ejecutar
-cualquier cosa (como en este caso, que estamos levantando un servicio). En otras
+cualquier cosa (como en el caso de Circle, que estamos levantando un servicio). En otras
 palabras, los tests no son nada especial, sigue siendo un proceso que devuelve 0
 si todos los tests se han ejecutado correctamente y otro código si ha habido
 algún tipo de error.
@@ -283,13 +284,13 @@ algún tipo de error.
 En este apartado veremos los diferentes endpoints de nuestra API REST para saber
 como comunicarnos con ella:
 
-### Raíz
+### Información
 
 #### Recurso URL
 -   `GET /`
 
 #### Ejemplo
-`curl localhost:9292/`
+`curl http://localhost:9292/`
 ```json
 {
   "status": "http://localhost:9292/status",
@@ -305,7 +306,7 @@ como comunicarnos con ella:
 -   `GET /status`
 
 #### Ejemplo
-`curl localhost:9292/status`
+`curl http://localhost:9292/status`
 ```json
 {
   "status": "OK"
@@ -327,7 +328,7 @@ como comunicarnos con ella:
 
 
 #### Resultado
-`curl localhost:9292/hash/md5/helloworld`
+`curl http://localhost:9292/hash/md5/helloworld`
 ```json
 {
   "type": "md5",
@@ -350,7 +351,7 @@ como comunicarnos con ella:
 
 
 #### Resultado
-`curl localhost:9292/crack/fc5e038d38a57032085441e7fe7010b0`
+`curl http://localhost:9292/crack/fc5e038d38a57032085441e7fe7010b0`
 ```json
 {
   "hash": "fc5e038d38a57032085441e7fe7010b0",
