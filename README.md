@@ -21,12 +21,12 @@ rake install
 ```
 
 ## Uso
-Iniciar el microservicio:
+Iniciar el servicio web:
 ```bash
 rake start
 ```
 
-Parar el microservicio:
+Parar el servicio web:
 ```bash
 rake stop
 ```
