@@ -26,6 +26,15 @@ Iniciar el microservicio:
 rake start
 ```
 
+Cuando se inicia el servidor, por defecto escucha en el puerto 9292. Puede
+consultarse la funcionalidad básica de la siguiente manera:
+```bash
+curl localhost:9292
+```
+
+Para más información, consultar la [documentación
+adicional](https://alvaro.network/alreadycracked/#api-rest).
+
 Parar el microservicio:
 ```bash
 rake stop
@@ -37,6 +46,11 @@ Ejecutar todos los tests:
 rake test
 ```
 
-## Información adicional
-Si quiere consultarse información adicional sobre el proyecto como la
-implementación o la toma de decisiones, se han habilitado [gh-pages](https://alvaro.network/alreadycracked).
+## Documentación adicional
+-   [Descripción](https://alvaro.network/alreadycracked/#descripción)
+-   [Motivación](https://alvaro.network/alreadycracked/#motivación)
+-   [Funcionalidad](https://alvaro.network/alreadycracked/#funcionalidad)
+-   [Implementación](https://alvaro.network/alreadycracked/#implementación)
+-   [Herramienta de construcción](https://alvaro.network/alreadycracked/#herramienta-de-construcción)
+-   [Integración continua](https://alvaro.network/alreadycracked/#integración-continua)
+-   [API REST](https://alvaro.network/alreadycracked/#api-rest)
