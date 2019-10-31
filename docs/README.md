@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # alreadycracked
 ![GitHub](https://img.shields.io/github/license/AlvaroGarciaJaen/alreadycracked)
 [![Build Status](https://travis-ci.com/AlvaroGarciaJaen/alreadycracked.svg?branch=master)](https://travis-ci.com/AlvaroGarciaJaen/alreadycracked)
