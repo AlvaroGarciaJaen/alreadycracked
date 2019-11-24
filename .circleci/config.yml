@@ -9,7 +9,7 @@ jobs:
 
       - run:
           name: Install bundler
-          command: bundle update --bundler
+          command: gem install bundler:2.0.2
 
       - run:
           name: Install gems
