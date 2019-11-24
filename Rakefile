@@ -23,15 +23,19 @@ task :install do
   sh 'bundle install'
 end
 
+desc "Initialize service"
+task :init do
+  sh 'god -c config.god'
+end
+
 desc "Run service"
 task :start do
-  sh 'rackup -D'
+  sh 'god start alreadycracked'
 end
 
 desc "Stop service"
 task :stop do
-  pid = `lsof -i :9292 -sTCP:LISTEN -t`
-  sh "kill -9 #{pid}"
+  sh "god stop alreadycracked"
 end
 
-task :default => :start
+task :default => :init
