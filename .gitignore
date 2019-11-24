@@ -52,3 +52,4 @@ build-iPhoneSimulator/
 # Others
 .rake_tasks~
 *.swp
+alreadycracked.pid
