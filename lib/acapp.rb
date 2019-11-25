@@ -18,7 +18,10 @@ class ACApp < Sinatra::Base
   end
 
   get '/status' do
-    json :status => 'OK'
+    json :status => 'OK',
+      :ejemplo => { :ruta => '/crack/fc5e038d38a57032085441e7fe7010b0',
+                   :valor => { :hash => 'fc5e038d38a57032085441e7fe7010b0',
+                              :plain => 'helloworld'}}
   end
 
   get '/hash/:type/:plain' do
