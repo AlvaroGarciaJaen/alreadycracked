@@ -2,15 +2,24 @@ require 'digest'
 require 'json'
 
 class AlreadyCracked
-  def compute_digest(type, plain)
+  def initialize
+    path = File.join File.dirname(__FILE__), '../t/sample.json'
+    @hashes = JSON.parse File.read path
+  end
+
+  def compute_digest(type, plain, save=false)
     case
     when type == 'md5'
-      Digest::MD5.hexdigest plain
+      hash = Digest::MD5.hexdigest plain
     when type == 'sha1'
-      Digest::SHA1.hexdigest plain
+      hash = Digest::SHA1.hexdigest plain
     when type == 'sha256'
-      Digest::SHA256.hexdigest plain
+      hash = Digest::SHA256.hexdigest plain
     end
+    if save
+      @hashes[hash] = plain
+    end
+    hash
   end
 
   def get_hash_types
@@ -30,9 +39,6 @@ class AlreadyCracked
 
   def get_plain(hash)
     # TODO: use MongoDB
-    path = File.join File.dirname(__FILE__), '../t/sample.json'
-    hashes = JSON.parse File.read path
-
-    hashes[hash]
+    @hashes[hash]
   end
 end
