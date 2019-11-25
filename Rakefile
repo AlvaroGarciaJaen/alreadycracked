@@ -38,4 +38,14 @@ task :stop do
   sh "god stop alreadycracked"
 end
 
+desc "Deploy to Azure"
+task :deploy_az do
+  sh "bash scripts/az-deploy.sh"
+end
+
+desc "Purge from Azure"
+task :purge_az do
+  sh "bash scripts/az-purge.sh"
+end
+
 task :default => :init
