@@ -3,6 +3,11 @@ require 'sinatra/json'
 require_relative 'alreadycracked.rb'
 
 class ACApp < Sinatra::Base
+  def initialize
+    super
+    @alreadycracked = AlreadyCracked.new
+  end
+
   get '/' do
     options = {
       :status => url + 'status',
@@ -17,12 +22,27 @@ class ACApp < Sinatra::Base
   end
 
   get '/hash/:type/:plain' do
-    options = AlreadyCracked.new.get_hash_types
+    options = @alreadycracked.get_hash_types
     type = params[:type]
     plain = params[:plain]
 
     if options.include? type
-      hash = AlreadyCracked.new.compute_digest(type, plain)
+      hash = @alreadycracked.compute_digest(type, plain)
+      json :type => type, :plain => plain, :hash => hash
+    else
+      status 404
+      json :message => 'Hash function not found',
+        :documentation_url => 'https://alvaro.network/alreadycracked/#obtener-hash-a-partir-de-un-texto-plano'
+    end
+  end
+
+  put '/hash/:type/:plain' do
+    options = @alreadycracked.get_hash_types
+    type = params[:type]
+    plain = params[:plain]
+
+    if options.include? type
+      hash = @alreadycracked.compute_digest(type, plain, true)
       json :type => type, :plain => plain, :hash => hash
     else
       status 404
@@ -33,7 +53,7 @@ class ACApp < Sinatra::Base
 
   get '/crack/:hash' do
     hash = params[:hash]
-    plain = AlreadyCracked.new.get_plain(hash)
+    plain = @alreadycracked.get_plain(hash)
     if plain.nil?
       status 404
       json :message => 'Hash not found'
