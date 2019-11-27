@@ -285,6 +285,8 @@ En este apartado veremos los diferentes endpoints de nuestra API REST para saber
 como comunicarnos con ella:
 
 ### Información
+-   Un usuario podrá consultar información general sobre las recursos disponibles de
+    la API REST.
 
 #### Recurso URL
 -   `GET /`
@@ -301,6 +303,7 @@ como comunicarnos con ella:
 
 
 ### Obtener estado del API REST
+-   Un usuario podrá consultar información sobre el estado actual de la API REST.
 
 #### Recurso URL
 -   `GET /status`
@@ -309,11 +312,19 @@ como comunicarnos con ella:
 `curl http://localhost:9292/status`
 ```json
 {
-  "status": "OK"
+  "status": "OK",
+  "ejemplo": {
+    "ruta": "/crack/fc5e038d38a57032085441e7fe7010b0",
+    "valor": {
+      "hash": "fc5e038d38a57032085441e7fe7010b0",
+      "plain": "helloworld"
+    }
+  }
 }
 ```
 
 ### Obtener hash a partir de un texto plano
+-   Un usuario podrá obtener un hash aplicando una función a un texto plano.
 
 #### Recurso URL
 -   `GET /hash/:type/:plain`
@@ -337,7 +348,36 @@ como comunicarnos con ella:
 }
 ```
 
+### Obtener y almacenar hash a partir de un texto plano
+-   Un usuario podrá obtener un hash aplicando una función a un texto plano.
+    Además, el par hash-texto plano se almacenará para aumentar la base de
+    datos.
+
+#### Recurso URL
+-   `PUT /hash/:type/:plain`
+
+#### Parámetros
+
+
+| Nombre | Obligatorio | Descripción | Ejemplo |
+|--------|-------------|-------------|---------|
+| type | Sí | Tipo de hash que se quiere obtener, actualmente está MD5, SHA1 y SHA256 | md5 |
+| plain | Sí | Texto plano al que se le quiere aplicar la función hash | helloworld |
+
+
+#### Resultado
+`curl -XPUT -H "Content-length: 0" http://localhost:9292/hash/md5/supersecret`
+```json
+{
+  "type": "md5",
+  "plain": "supersecret",
+  "hash": "9a618248b64db62d15b300a07b00580b"
+}
+```
+
 ### Obtener texto plano a partir de un hash
+-   Un usuario podrá obtener el texto plano a partir del cual puede obtenerse el
+    hash dado.
 
 #### Recurso URL
 -   `GET /crack/:hash`
@@ -358,3 +398,147 @@ como comunicarnos con ella:
   "plain": "helloworld"
 }
 ```
+
+## Despliegue PaaS
+Haremos el despliegue en Azure por los siguientes motivos:
+-   Tiene versión gratuita (60 min/dia de cómputo)
+-   Tiene una CLI que nos permite automatizarlo todo
+-   Si somos estudiantes, tenemos 100€ para gastar y hacer pruebas
+
+El único problema es que Azure Webapp, en lo que a Ruby se refiere, solo soporta
+Ruby on Rails por el momento y no Sinatra. Esto se puede solucionar fácilmente
+haciendo un contenedor de Docker. Podemos ver la referencia a esto en la
+documentación de Microsoft
+[aquí](https://docs.microsoft.com/en-us/azure/app-service/containers/quickstart-ruby).
+
+### Docker
+A la hora de definir nuestra imagen de Docker, necesitamos crear nuestro
+Dockerfile. Nos queda de la siguiente manera:
+```Dockerfile
+# Elegimos alpine como base para hacerlo lo más pequeño posible
+FROM alpine:latest
+
+# Creamos un directorio para la aplicación
+RUN mkdir -p /app
+
+# Establecemos el directorio como el espacio de trabajo
+WORKDIR /app
+
+# Copiamos el código fuente a la imagen
+ADD lib ./lib
+
+# Copiamos nuestro sample.json
+ADD t/sample.json ./t/
+
+# Actualizamos los paquetes ya instalados y los repositorios
+RUN apk update && apk upgrade
+
+# Instalamos los paquetes necesarios para correr la aplicación
+RUN apk add ruby ruby-bundler ruby-dev build-base
+
+# Borramos la cache de apk
+RUN rm -rf /var/cache/apk/*
+
+# Instalamos bundler para poder obtener las gemas de ruby directamente desde el
+# Gemfile
+RUN gem install --no-rdoc --no-ri bundler
+
+# Copiamos el Gemfile
+ADD Gemfile* ./
+
+# Instalamos las gemas especificadas en el Gemfile
+RUN bundle install
+
+# Indicamos que el servicio (dentro del contenedor) estará escuchando en el
+# puerto 80 y que además, al ser un servicio web, sera tcp
+EXPOSE 80/tcp
+
+# Copiamos el archivo de configuración de rackup
+ADD config.ru .
+
+# Al iniciar el contenedor, se ejecutará la siguiente orden (dentro del
+# contenedor no usaremos god ya que el PaaS se encargará de la gestión de
+# tareas. Además, al estar el servicio "envuelto" en un contenedor, no es
+# necesario que nos preocupamos por como se gestiona la tarea)
+CMD ["rackup", "config.ru", "--host", "0.0.0.0", "-p", "80"]
+```
+
+Cuando ya tenemos la imagen creada, la subimos a Docker Hub. Para ello primero
+hacemos login:
+```bash
+docker login
+```
+Y a continuación subimos la imagen, en nuestro caso:
+```bash
+docker push alvaronetwork/alreadycracked:tagname
+```
+
+En realidad nunca haremos el push a Docker Hub a mano. La idea es mantenerla
+siempre actualizada de manera automática con GitHub. Para ello iremos a nuestro
+repositorio de Docker Hub, Builds, haremos click sobre el botón azul "Configure
+Automated Builds" y, tras logearnos con nuestro usuario de GitHub,
+seleccionaremos el repositorio con el que queremos mantener sincronizado nuestra
+imagen. De esta manera, cada vez que haremos un cambio en el repositorio de
+GitHub, un trigger se lanzará para que Docker Hub vuelva a construir la imagen a
+partir de nuestro repositorio. Cuando ya tenemos el repositorio de Docker Hub
+correctamente configurado (y sincronizado), podemos preocuparnos ya por el
+despliegue del PaaS en Azure.
+
+### Azure Webapp
+Hacer el despliegue en Azure es muy fácil. Se ha escrito dos scripts (para
+desplegar y para deshacer el despliegue) basándonos principalmente en este
+[post](https://msftstack.wordpress.com/2019/02/04/deploying-a-docker-image-to-the-azure-app-service/).
+El despliegue en Azure se haría así:
+```bash
+# Creamos un grupo de recursos en Europa Occidental
+az group create --name IV --location westeurope
+
+# Establecemos ese grupo por defecto
+az configure --defaults group=IV
+
+# Creamos un plan a partir del gratuito (F1). Si tenemos créditos podemos
+# crearlo a partir de B1 y así tener una máquina algo más potente.
+az appservice plan create --name IVPlan --sku F1 --location westeurope --is-linux
+
+# Creamos el webapp a partir de la imagen del repositorio de Docker Hub alvaronetwork/alreadycracked.
+# Al ejecutar esta linea, nos devolverá un JSON con la clave "hostNames". El
+# valor contendrá las URL donde estará nuestra aplicación (normalmente una)
+az webapp create -p IVPlan -n alreadycracked -i alvaronetwork/alreadycracked
+
+# Activamos el despliegue continuo. Esto nos devolverá un JSON con la clave 
+# "CI\_CD\_URL". El valor deberemos añadirlo como webhook en Docker Hub para
+# que, cuando Docker Hub actualice la imagen, "avise" a Azure y vuelva a
+# descargarla
+az webapp deployment container config --enable-cd true --name alreadycracked
+```
+El script podemos encontrarlo
+[aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/scripts/az-deploy.sh)
+
+Si queremos, también podemos deshacer el despliegue con las siguientes órdenes:
+```bash
+# Eliminamos la webapp
+az webapp delete --name alreadycracked
+
+# Eliminamos el plan
+az appservice plan delete --name IVPlan
+
+# Eliminamos el grupo
+az group delete --name IV
+```
+
+En alguna documentación se dice con borrar el grupo de recursos es suficiente,
+pero a mí me daba problemas, por lo que pongo el script completo para borrarlo
+todo paso a paso. El script puede encontrarse
+[aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/scripts/az-purge.sh)
+
+Además, estos scripts pueden llamarse directamente desde `rake`:
+-   rake deploy_az
+-   rake purge_az
+
+Habiendo seguido estos pasos, ya tendríamos el despliegue completo en el PaaS de
+Azure de manera que, al hacer push a nuestro repositorio de GitHub:
+-   Se pasan los tests de CI
+-   Se hace trigger al webhook de Docker Hub para que haga build de la imagen
+-   Desde Docker Hub, una vez compilada la imagen, se llama a Azure para que
+    vuelva a hacer pull de nuestra imagen
+-   Nuestra aplicación se despliegue correctamente
