@@ -21,7 +21,15 @@ rake install
 ```
 
 ## Uso
--   Iniciar el servicio web:
+Para hacer uso del servicio web, podemos hacerlo de dos maneras:
+
+### Directamente desde nuestro Linux
+-   Iniciar el gestor de tareas (esto inicia el servicio directamente):
+```bash
+rake init
+```
+
+-   Iniciar el servicio web (si el gestor de tareas ya esta activo):
 ```bash
 rake start
 ```
@@ -29,6 +37,12 @@ rake start
 -   Parar el servicio web:
 ```bash
 rake stop
+```
+
+### Contenedor Docker
+-   Para iniciar el contenedor de Docker:
+```bash
+docker run --rm -t -p 9292:80 alvaronetwork/alreadycracked
 ```
 
 -   Cuando se inicia el servidor, por defecto escucha en el puerto 9292. Puede
@@ -44,6 +58,22 @@ adicional](https://alvaro.network/alreadycracked/#api-rest).
 -   Ejecutar todos los tests:
 ```bash
 rake test
+```
+
+## Despliuegue PaaS
+-   Actualmente se encuentra desplegado en el PaaS de Azure:
+```
+Despliegue: https://alreadycracked.azurewebsites.net/
+```
+
+-   Para desplegarse:
+```bash
+rake deploy_az
+```
+
+-   Para deshacer el despliegue:
+```bash
+rake purge_az
 ```
 
 ## Documentación adicional
