@@ -506,7 +506,7 @@ docker push alvaronetwork/alreadycracked:tagname
 
 En realidad nunca haremos el push a Docker Hub a mano. La idea es mantenerla
 siempre actualizada de manera automática con GitHub. Para ello iremos a nuestro
-repositorio de Docker Hub, Builds, haremos click sobre el botón azul "Configure
+repositorio de Docker Hub > Builds, haremos click sobre el botón azul "Configure
 Automated Builds" y, tras logearnos con nuestro usuario de GitHub,
 seleccionaremos el repositorio con el que queremos mantener sincronizado nuestra
 imagen. 
