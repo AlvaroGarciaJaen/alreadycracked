@@ -478,7 +478,10 @@ siempre actualizada de manera automática con GitHub. Para ello iremos a nuestro
 repositorio de Docker Hub, Builds, haremos click sobre el botón azul "Configure
 Automated Builds" y, tras logearnos con nuestro usuario de GitHub,
 seleccionaremos el repositorio con el que queremos mantener sincronizado nuestra
-imagen. De esta manera, cada vez que haremos un cambio en el repositorio de
+imagen. 
+Lo que estamos haciendo es darle permisos a Docker Hub para que instale un
+webhook en nuestro repositorio de GitHub.
+De esta manera, cada vez que hagamos un cambio en el repositorio de
 GitHub, un trigger se lanzará para que Docker Hub vuelva a construir la imagen a
 partir de nuestro repositorio. Cuando ya tenemos el repositorio de Docker Hub
 correctamente configurado (y sincronizado), podemos preocuparnos ya por el
@@ -506,7 +509,7 @@ az appservice plan create --name IVPlan --sku F1 --location westeurope --is-linu
 az webapp create -p IVPlan -n alreadycracked -i alvaronetwork/alreadycracked
 
 # Activamos el despliegue continuo. Esto nos devolverá un JSON con la clave 
-# "CI\_CD\_URL". El valor deberemos añadirlo como webhook en Docker Hub para
+# "CI_CD_URL". El valor deberemos añadirlo como webhook en Docker Hub para
 # que, cuando Docker Hub actualice la imagen, "avise" a Azure y vuelva a
 # descargarla
 az webapp deployment container config --enable-cd true --name alreadycracked
@@ -532,8 +535,18 @@ todo paso a paso. El script puede encontrarse
 [aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/scripts/az-purge.sh)
 
 Además, estos scripts pueden llamarse directamente desde `rake`:
--   rake deploy_az
--   rake purge_az
+```bash
+rake deploy_az
+```
+``bash
+rake purge_az
+```
+
+Obviamente, para ejecutar estos scripts, debemos autenticarnos. Para ello la CLI
+de Azure tiene el siguiente comando:
+```bash
+az login
+```
 
 Habiendo seguido estos pasos, ya tendríamos el despliegue completo en el PaaS de
 Azure de manera que, al hacer push a nuestro repositorio de GitHub:
