@@ -118,35 +118,55 @@ task :install do
   sh 'bundle install'
 end
 
+desc "Initialize service"
+task :init do
+  sh 'god -c config.god'
+end
+
 desc "Run service"
 task :start do
-  sh 'rackup -D'
+  sh 'god start alreadycracked'
 end
 
 desc "Stop service"
 task :stop do
-  pid = `lsof -i :9292 -sTCP:LISTEN -t`
-  sh "kill -9 #{pid}"
+  sh "god stop alreadycracked"
 end
 
-task :default => :start
+desc "Deploy to Azure"
+task :deploy_az do
+  sh "bash scripts/az-deploy.sh"
+end
+
+desc "Purge from Azure"
+task :purge_az do
+  sh "bash scripts/az-purge.sh"
+end
+
+task :default => :init
 ```
 
 Se llama con `rake` y se han definido las
 siguientes tareas:
--   `rake` o `rake start`: Inicia el servicio web
+-   `rake init`: Inicia el gestor de tareas
 
-Para iniciar el servicio lo hacemos con la herramienta rackup en modo demonio
-para que se ejecute en segundo plano. Escucha en el puerto 9292 que es el puerto
-estándar. Para su despliegue en PaaS se usará una variable de entorno, pero
-mientras tanto con fijar uno es suficiente.
+Se está usando [god](http://godrb.com/) como gestor de tareas. Funciona con un
+demonio que inicia y para procesos según tenemos definidos en nuestro
+[config.god](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/config.god).
+Lo que hace es almacenar en un archivo _alreadycracked.pid_ el pid del programa
+para saber luego como pararlo. Cuando inicializamos god, automáticamente lanza
+la orden start.
 
 -   `rake stop`: Para el servicio web
 
-Para parar el servicio debemos hacerlo a través de su pid. Como lo único que
-sabemos del proceso es que se encuentra escuchando peticiones TCP en el puerto 9292,
-hay una herramienta llamada lsof que nos permite buscar un pid a partir de estos
-datos.
+Le indica al gestor de tareas que pare nuestro servicio web. Para saber qué
+proceso parar, mira el archivo que crea cada vez que inicia el proceso
+(_alreadycracked.pid_).
+
+-   `rake start`: Iniciar el servicio web
+
+Cuando el gestor de tareas ya está inicializado, necesitamos otra orden para
+iniciar únicamente el servicio (y no de nuevo el gestor de tareas).
 
 -   `rake test`: Ejecuta todo los tests 
 
@@ -161,6 +181,16 @@ nuestro servicio funciona correctamente.
 
 Se ejecutan únicamente los tests funcionales para comprobar que la API REST
 funciona correctamente. 
+
+-   `rake deploy_az`: Lanza el despliegue en el PaaS de Azure
+
+Para hacerlo más sencillo, se da la posibilidad de llamar desde aquí
+directamente al script que hace el despliegue completo en Azure.
+
+-   `rake purge_az`: Deshace el despliegue en el PaaS de Azure
+
+Igual que se hace el despliegue, también se puede volver atrás deshaciendo todo
+lo creado.
 
 Se ha decidido dar la posibilidad de ejecutar los tests por separado para
 aprovechar el uso de las dos plataformas de CI.
