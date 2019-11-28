@@ -538,7 +538,7 @@ Además, estos scripts pueden llamarse directamente desde `rake`:
 ```bash
 rake deploy_az
 ```
-``bash
+```bash
 rake purge_az
 ```
 
