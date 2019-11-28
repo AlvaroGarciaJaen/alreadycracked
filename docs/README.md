@@ -11,6 +11,7 @@
 -   [Herramienta de construcción](#herramienta-de-construcción)
 -   [Integración continua](#integración-continua)
 -   [API REST](#api-rest)
+-   [Despliegue PaaS](#despliegue-paas)
 
 ## Descripción
 Se pretende desarrollar un microservicio que recoja hashes de diferentes
