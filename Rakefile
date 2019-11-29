@@ -48,4 +48,14 @@ task :purge_az do
   sh "bash scripts/az-purge.sh"
 end
 
+desc "Deploy to Heroku"
+task :deploy_heroku do
+  sh "bash scripts/heroku-deploy.sh"
+end
+
+desc "Purge from Heroku"
+task :purge_heroku do
+  sh "bash scripts/heroku-purge.sh"
+end
+
 task :default => :init
