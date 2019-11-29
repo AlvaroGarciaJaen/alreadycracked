@@ -76,17 +76,36 @@ rake deploy_az
 rake purge_az
 ```
 
+## Despliegue PaaS con Docker
+-   Actualmente se encuentra desplegado en el PaaS de Azure y Heroku
+```
+Contenedor: https://alreadycracked.azurewebsites.net/
+```
+```
+Despliegue: https://alreadycracked.herokuapp.com/
+```
+
+-   Para desplegarse:
+```bash
+rake deploy_heroku
+```
+
+-   Para deshacer el despliegue:
+```bash
+rake purge_heroku
+```
+
 ## Documentación adicional
 Como herramienta de construcción, se hace uso de:
 ```
 buildtool: Rakefile
 ```
 
--   [Descripción](https://alvaro.network/alreadycracked/#descripción)
--   [Motivación](https://alvaro.network/alreadycracked/#motivación)
--   [Funcionalidad](https://alvaro.network/alreadycracked/#funcionalidad)
--   [Implementación](https://alvaro.network/alreadycracked/#implementación)
--   [Herramienta de construcción](https://alvaro.network/alreadycracked/#herramienta-de-construcción)
--   [Integración continua](https://alvaro.network/alreadycracked/#integración-continua)
--   [API REST](https://alvaro.network/alreadycracked/#api-rest)
--   [Despliegue PaaS](#despliegue-paas)
+-   [Descripción](#descripción)
+-   [Motivación](#motivación)
+-   [Funcionalidad](#funcionalidad)
+-   [Implementación](#implementación)
+-   [Herramienta de construcción](#herramienta-de-construcción)
+-   [Integración continua](#integración-continua)
+-   [API REST](#api-rest)
+-   [Despliegue PaaS con Docker](#despliegue-paas-con-docker)
