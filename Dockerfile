@@ -32,10 +32,6 @@ ADD Gemfile* ./
 # Instalamos las gemas especificadas en el Gemfile
 RUN bundle install
 
-# Indicamos que el servicio (dentro del contenedor) estará escuchando en el
-# puerto 80 y que además, al ser un servicio web, sera tcp
-EXPOSE 80/tcp
-
 # Copiamos el archivo de configuración de rackup
 ADD config.ru .
 
