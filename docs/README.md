@@ -143,6 +143,16 @@ task :purge_az do
   sh "bash scripts/az-purge.sh"
 end
 
+desc "Deploy to Heroku"
+task :deploy_heroku do
+  sh "bash scripts/heroku-deploy.sh"
+end
+
+desc "Purge from Heroku"
+task :purge_heroku do
+  sh "bash scripts/heroku-purge.sh"
+end
+
 task :default => :init
 ```
 
@@ -188,6 +198,15 @@ Para hacerlo más sencillo, se da la posibilidad de llamar desde aquí
 directamente al script que hace el despliegue completo en Azure.
 
 -   `rake purge_az`: Deshace el despliegue en el PaaS de Azure
+
+Igual que se hace el despliegue, también se puede volver atrás deshaciendo todo
+lo creado.
+
+-   `rake deploy_heroku`: Lanza el despliegue en el PaaS de Heroku
+
+También damos la opción hacer el despliegue con Heroku
+
+-   `rake purge_az`: Deshace el despliegue en el PaaS de Heroku
 
 Igual que se hace el despliegue, también se puede volver atrás deshaciendo todo
 lo creado.
@@ -644,6 +663,14 @@ que deshace nuestro despliegue por si fuera necesario:
 ```bash
 # Destruimos la aplicación de Heroku
 heroku apps:destroy
+```
+
+Además, estos scripts pueden llamarse directamente desde `rake`:
+```bash
+rake deploy_heroku
+```
+```bash
+rake purge_heroku
 ```
 
 En este punto, ya tendremos nuestra aplicación corriendo en Heroku. Nos falta
