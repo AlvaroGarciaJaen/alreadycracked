@@ -436,6 +436,10 @@ Haremos el despliegue en Azure por los siguientes motivos:
 -   Tiene una CLI que nos permite automatizarlo todo
 -   Si somos estudiantes, tenemos 100€ para gastar y hacer pruebas
 
+También haremos el despliegue en Heroku ya que:
+-   Tiene versión gratuita (1 dyno gratuito)
+-   También tiene una CLI que nos permite automatizarlo todo
+
 El único problema es que Azure Webapp, en lo que a Ruby se refiere, solo soporta
 Ruby on Rails por el momento y no Sinatra. Esto se puede solucionar fácilmente
 haciendo un contenedor de Docker. Podemos ver la referencia a esto en la
@@ -480,18 +484,20 @@ ADD Gemfile* ./
 # Instalamos las gemas especificadas en el Gemfile
 RUN bundle install
 
-# Indicamos que el servicio (dentro del contenedor) estará escuchando en el
-# puerto 80 y que además, al ser un servicio web, sera tcp
-EXPOSE 80/tcp
-
 # Copiamos el archivo de configuración de rackup
 ADD config.ru .
 
-# Al iniciar el contenedor, se ejecutará la siguiente orden (dentro del
-# contenedor no usaremos god ya que el PaaS se encargará de la gestión de
-# tareas. Además, al estar el servicio "envuelto" en un contenedor, no es
-# necesario que nos preocupamos por como se gestiona la tarea)
-CMD ["rackup", "config.ru", "--host", "0.0.0.0", "-p", "80"]
+# Ponemos el valor de PORT a 80 por defecto para levantar el servidor web en el
+# puerto 80 dentro del contenedor. Luego el PaaS mapeará el puerto como más le
+# interese, pero en principio dentro del contenedor, al ser root, tenemos
+# control total.
+ENV PORT 80
+
+# Con CMD especificamos el comando por defecto que se ejecutará cuando el
+# contenedor se inicia. Lo hacemos en su forma "shell" porque queremos que se
+# procese por una shell y reemplaze $PORT por el valor dado anteriormente con la
+# orden ENV o luego, en la linea de ejecución del contenedor con -e.
+CMD rackup config.ru --host 0.0.0.0 -p $PORT
 ```
 
 Cuando ya tenemos la imagen creada, la subimos a Docker Hub. Para ello primero
@@ -586,3 +592,77 @@ Azure de manera que, al hacer push a nuestro repositorio de GitHub:
 -   Desde Docker Hub, una vez compilada la imagen, se llama a Azure para que
     vuelva a hacer pull de nuestra imagen
 -   Nuestra aplicación se despliegue correctamente
+
+### Heroku
+El despliegue en Heroku también lo haremos a partir de contenedores Docker. Para
+hacerlo de manera automática, en primer lugar instalamos el CLI de Heroku. Para
+entornos basados en Debian, podemos instalarlo mediante _apt_ con el siguiente
+script:
+```bash
+curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+```
+
+Mientras tanto, añadiremos el archivo
+[heroku.yml](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/heroku.yml) 
+a nuestro repositorio. Este archivo indica a Heroku como construir nuestro
+contenedor de Heroku:
+```yml
+build:
+  docker:
+    web: Dockerfile
+```
+
+Simplemente, le indicamos que use nuestro Dockerfile para construir la imagen.
+
+Una vez que tenemos la herramienta, debemos iniciar sesión tanto en Heroku en sí
+como en su _"Container Registry"_.
+```bash
+heroku login
+heroku container:login
+```
+
+El siguiente [script](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/scripts/heroku-deploy.sh)
+ hace el despliegue en Heroku:
+```bash
+# Creamos la aplicación alreadycracked en la región europea
+heroku create alreadycracked --region eu
+
+# Indicamos que haremos el despliegue mediante un contenedor
+heroku stack:set container
+
+# Subimos nuestra imagen al registro de Heroku. Leerá "heroku.yml" para saber
+# como construirla y verá que para el proceso web, debe seguir el Dockerfile
+heroku container:push web
+
+# Hacemos release (despliegue) de nuestro servicio web
+heroku container:release web
+```
+
+Igual que para Azure, tenemos un 
+[script](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/scripts/heroku-purge.sh) 
+que deshace nuestro despliegue por si fuera necesario:
+```bash
+# Destruimos la aplicación de Heroku
+heroku apps:destroy
+```
+
+En este punto, ya tendremos nuestra aplicación corriendo en Heroku. Nos falta
+configurar un método de despliegue automático. Optaremos por hacerlo desde
+GitHub. La idea es que cada vez que hagamos un push a nuestro repositorio remoto
+de GitHub se pasen los tests de CI y, a continuación, si todos los tests han
+pasado, se despliegue en Heroku. Esto se hace muy fácilmente desde la web de
+Heroku (no se puede configurar desde la CLI). 
+
+Nos vamos al dashboard de nuestra aplicación > Deploy. Iniciamos sesión con
+nuestra cuenta de GitHub (si es que no lo hemos hecho ya) y entonces nos dejará
+seleccionar el repositorio con el que tendremos sincronizada nuestra aplicación.
+Nos debe quedar algo tal que así:
+
+![Automatic deploy Heroku](img/cd-heroku.png)
+
+Habiendo seguido estos pasos, ya tendríamos el despliegue completo en el PaaS de
+Heroku de manera que, al hacer push a nuestro repositorio de GitHub:
+-   Se pasan los tests de CI
+-   Se hace trigger al webhook de Heroku para que construya la imagen de Docker
+-   Una vez compilada la imagen, se apaga el contenedor que estaba corriendo
+    hasta ese momento y se vuelve a levantar con nuestra nueva imagen
