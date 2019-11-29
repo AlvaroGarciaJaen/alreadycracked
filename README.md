@@ -60,13 +60,17 @@ adicional](https://alvaro.network/alreadycracked/#api-rest).
 rake test
 ```
 
-## Despliuegue PaaS
--   Actualmente se encuentra desplegado en el PaaS de Azure:
+## Despliegue PaaS con Docker
+-   Actualmente se encuentra desplegado en el PaaS de Azure y Heroku
 ```
 Despliegue: https://alreadycracked.azurewebsites.net/
 ```
+```
+Contenedor: https://alreadycracked.herokuapp.com/
+Contenedor: https://alreadycracked.azurewebsites.net/
+```
 
--   Para desplegarse:
+-   Para desplegarse en Azure:
 ```bash
 rake deploy_az
 ```
@@ -76,16 +80,7 @@ rake deploy_az
 rake purge_az
 ```
 
-## Despliegue PaaS con Docker
--   Actualmente se encuentra desplegado en el PaaS de Azure y Heroku
-```
-Contenedor: https://alreadycracked.azurewebsites.net/
-```
-```
-Despliegue: https://alreadycracked.herokuapp.com/
-```
-
--   Para desplegarse:
+-   Para desplegarse en Heroku:
 ```bash
 rake deploy_heroku
 ```
