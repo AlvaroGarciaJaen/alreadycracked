@@ -35,8 +35,14 @@ RUN bundle install
 # Copiamos el archivo de configuración de rackup
 ADD config.ru .
 
-# Al iniciar el contenedor, se ejecutará la siguiente orden (dentro del
-# contenedor no usaremos god ya que el PaaS se encargará de la gestión de
-# tareas. Además, al estar el servicio "envuelto" en un contenedor, no es
-# necesario que nos preocupamos por como se gestiona la tarea)
+# Ponemos el valor de PORT a 80 por defecto para levantar el servidor web en el
+# puerto 80 dentro del contenedor. Luego el PaaS mapeará el puerto como más le
+# interese, pero en principio dentro del contenedor, al ser root, tenemos
+# control total.
+ENV PORT 80
+
+# Con CMD especificamos el comando por defecto que se ejecutará cuando el
+# contenedor se inicia. Lo hacemos en su forma "shell" porque queremos que se
+# procese por una shell y reemplaze $PORT por el valor dado anteriormente con la
+# orden ENV o luego, en la linea de ejecución del contenedor con -e.
 CMD rackup config.ru --host 0.0.0.0 -p $PORT
