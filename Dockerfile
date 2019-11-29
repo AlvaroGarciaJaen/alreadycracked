@@ -43,4 +43,4 @@ ADD config.ru .
 # contenedor no usaremos god ya que el PaaS se encargará de la gestión de
 # tareas. Además, al estar el servicio "envuelto" en un contenedor, no es
 # necesario que nos preocupamos por como se gestiona la tarea)
-CMD ["rackup", "config.ru", "--host", "0.0.0.0", "-p", "80"]
+CMD rackup config.ru --host 0.0.0.0 -p $PORT
