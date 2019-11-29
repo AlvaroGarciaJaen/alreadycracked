@@ -11,7 +11,7 @@
 -   [Herramienta de construcción](#herramienta-de-construcción)
 -   [Integración continua](#integración-continua)
 -   [API REST](#api-rest)
--   [Despliegue PaaS](#despliegue-paas)
+-   [Despliegue PaaS con Docker](#despliegue-paas-con-docker)
 
 ## Descripción
 Se pretende desarrollar un microservicio que recoja hashes de diferentes
@@ -449,7 +449,7 @@ como comunicarnos con ella:
 }
 ```
 
-## Despliegue PaaS
+## Despliegue PaaS con Docker
 Haremos el despliegue en Azure por los siguientes motivos:
 -   Tiene versión gratuita (60 min/dia de cómputo)
 -   Tiene una CLI que nos permite automatizarlo todo
