@@ -43,6 +43,7 @@ rake stop
 ```
 DockerHub: https://hub.docker.com/r/alvaronetwork/alreadycracked
 ```
+
 -   Para iniciar el contenedor de Docker:
 ```bash
 docker run --rm -t -p 9292:80 alvaronetwork/alreadycracked
