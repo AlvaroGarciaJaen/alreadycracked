@@ -12,8 +12,9 @@ Vagrant.configure("2") do |config|
   # de otras.
   config.vm.box = "ubuntu/bionic64"
 
-  # Le damos un hostname a la máquina virtual
+  # Le damos un hostname y un nombre a la máquina virtual
   config.vm.hostname = "alreadycracked"
+  config.vm.define "alreadycracked"
 
   # Vagrant comprobará si hay actualizaciones cada vez que se levanta la máquina
   # virtual. Si se encuentra una actualización, se informa al usuario.
@@ -32,5 +33,4 @@ Vagrant.configure("2") do |config|
   # Como estamos trabajando con una máquina Linux, establecemos que usaremos ssh
   # para comunicarnos. 
   config.vm.communicator = "ssh"
-
 end
