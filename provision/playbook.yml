@@ -1,12 +1,17 @@
+# Playbook de Ansible que utilizamos para provisionar nuestra máquina virtual.
 - hosts: alreadycracked
-  vars:
+  # A partir de aquí, vamos definiendo las tareas que se realizarán en orden
   tasks:
+    # Creamos un grupo al que pertenecerán los dos usuarios relacionados con
+    # nuestra aplicación
   - name: 'Crear grupo alreadycracked'
     become: true
     group:
       name: alreadycracked
       state: present
 
+    # alreadycracked-dev será el usuario con el que añadiremos los archivos para
+    # nuestra aplicación
   - name: 'Crear usuario desarrollador'
     become: true
     user:
@@ -15,6 +20,18 @@
       shell: /bin/bash
       state: present
 
+    # Añado la clave pública del usuario que corre el script para que pueda
+    # conectarse por SSH como el usuario alreadycracked-dev
+  - name: 'Añadir clave pública SSH com clave autorizada'
+    become: true
+    authorized_key:
+      user: alreadycracked-dev
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      manage_dir: yes
+      state: present
+
+    # alreadycracked será el usuario con privilegios mínimos y sin shell que
+    # ejecutará la aplicación
   - name: 'Crear usuario aplicación'
     become: true
     user:
@@ -26,12 +43,20 @@
       system: yes
       state: present
 
+    # En primer lugar debemos actualizar los repositorios por si hubiera nuevas
+    # versiones. A continuación, actualizamos aquellos paquetes para los cuales
+    # hemos encontrado una nueva versión. Como estamos en un SO LTS, la gran
+    # parte serán actualizaciones de seguridad y no nos preocupa que la máquina
+    # se rompa
   - name: 'Actualizar repositorios y paquetes'
     become: true
     apt:
       update_cache: yes
       upgrade: safe
 
+    # Para instalar nuestra aplicación necesitamos git para clonar nuestro
+    # repositorio y rbenv para montar nuestro entorno de desarrollo de ruby. De
+    # esta manera podremos elegir la versión que queramos del lenguaje.
   - name: 'Instalar herramientas de desarrollo'
     become: true
     apt:
@@ -39,6 +64,9 @@
         - git
         - rbenv
 
+    # Clonamos nuestro proyecto en el home del desarrollador. Como pertenecen al
+    # mismo grupo y el umask lo permite, el usuario sistema podrá leer más
+    # adelante, en el despliegue, estos archivos
   - name: 'Clonar proyecto'
     become: true
     become_user: alreadycracked-dev
@@ -47,6 +75,9 @@
       dest: '/home/alreadycracked-dev/alreadycracked/'
       force: yes
 
+    # Para utilizar rbenv, necesitamos la linea que se indica en esta tarea en
+    # .bashrc. Esto nos cambia el path para ejecutar las versiones adecuadas.
+    # Nos aseguramos de que se encuentra la linea.
   - name: 'Comprobar si se inicialzia rbenv'
     become: true
     become_user: alreadycracked-dev
@@ -55,6 +86,8 @@
       line: 'eval "$(rbenv init -)"'
       create: yes
 
+    # Necesitamos crear el directorio de plugins en nuestra raiz de rbenv para
+    # poder instalar ruby-build y tener acceso a más versiones.
   - name: 'Crear carpeta para plugins'
     become: true
     become_user: alreadycracked-dev
@@ -62,6 +95,7 @@
       path: ~/.rbenv/plugins
       state: directory
 
+    # Clonamos ruby-build en nuestro directorio de plugins de rbenv.
   - name: 'Clonar proyecto'
     become: true
     become_user: alreadycracked-dev
@@ -70,16 +104,24 @@
       dest: ~/.rbenv/plugins/ruby-build
       force: yes
   
+    # Instalamos la versión 2.6.5 de ruby que es la que estamos usando para este
+    # proyecto. Si está ya instalada, no la reinstalamos para salvar tiempo.
   - name: 'Instalar ruby 2.6.5'
     become: true
     become_user: alreadycracked-dev
     command: rbenv install -s 2.6.5
 
+    # Se establece para alreadycracked-dev que por defecto se usará la version
+    # 2.6.5 de ruby que hemos instalado anteriormente.
   - name: 'Establecer por defecto ruby 2.6.5'
     become: true
     become_user: alreadycracked-dev
     command: rbenv global 2.6.5
 
+    # Para el proyecto se ha usado la version 2 de bundler, por lo que antes de
+    # instalar el resto de gemas debemos actualizarlo. Es importante establecer
+    # la ruta correcta a gem, puesto que no estamos usando la del sistema, sino
+    # la instalada con rbenv.
   - name: 'Actualizar bundle'
     become: true
     become_user: alreadycracked-dev
@@ -88,24 +130,19 @@
       executable: ~/.rbenv/versions/2.6.5/bin/gem
       version: 2
 
-#  - name: 'Instalar gemas'
-#    become: true
-#    become_user: alreadycracked-dev
-#    bundler:
-#      gemfile: ~/alreadycracked/Gemfile
-
+    # Dejamos instaladas las gemas para que, al hacer el despliegue, solo falte
+    # iniciar el servicio. En esta tarea es importante ejecutar bash -ci.
+    # Queremos usar rake pero no el del sistema, sino el del entorno que hemos
+    # instalado anteriormente. El $PATH se modifica en .bashrc, que solo se lee
+    # cuando una shell es interactiva. Por tanto, para usar el rake que queremos
+    # nosotros, debemos idear el cómo hacer que Ansible no obvie .bashrc al
+    # ejecutar nuestro comando. El problema es que cuando Ansible ejecuta, no lo
+    # hace de manera interactiva, por lo que debemos especificarlo nosotros con
+    # el flag -i.
   - name: 'Instalar gemas'
     become: true
     become_user: alreadycracked-dev
     become_flags: -i
-    shell: bash -ci "rake install"
-    args:
-      chdir: ~/alreadycracked
-
-  - name: 'Iniciar servicio'
-    become: true
-    become_user: alreadycracked-dev
-    become_flags: -i
-    shell: bash -ci "rake init"
+    command: bash -ci "rake install"
     args:
       chdir: ~/alreadycracked
