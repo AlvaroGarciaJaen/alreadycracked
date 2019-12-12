@@ -94,6 +94,17 @@ rake deploy_heroku
 rake purge_heroku
 ```
 
+## Creación de VM y aprovisionamiento
+El playbook de Ansible podemos encontrarlo aquí:
+```
+provision: provision/playbook.yml
+```
+
+Además, la imagen del SO se encuentra pública aquí:
+```
+https://app.vagrantup.com/alvaronetwork/boxes/alreadycracked
+```
+
 ## Documentación adicional
 Como herramienta de construcción, se hace uso de:
 ```
