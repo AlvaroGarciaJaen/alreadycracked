@@ -12,6 +12,7 @@
 -   [Integración continua](#integración-continua)
 -   [API REST](#api-rest)
 -   [Despliegue PaaS con Docker](#despliegue-paas-con-docker)
+-   [Creación de VM y aprovisionamiento](#creación-de-vm-y-aprovisionamiento)
 
 ## Descripción
 Se pretende desarrollar un microservicio que recoja hashes de diferentes
@@ -693,3 +694,271 @@ Heroku de manera que, al hacer push a nuestro repositorio de GitHub:
 -   Se hace trigger al webhook de Heroku para que construya la imagen de Docker
 -   Una vez compilada la imagen, se apaga el contenedor que estaba corriendo
     hasta ese momento y se vuelve a levantar con nuestra nueva imagen
+
+
+## Creación de VM y aprovisionamiento
+### Vagrant
+Para la creación de la máquina virtual se ha usado Vagrant con VirtualBox como
+provider. En primer lugar, veremos el `Vagrantfile`. Esto sería el equivalente
+del Dockerfile cuando trabajamos con Docker. Se trata de un archivo donde
+especificamos la configuración que queremos que tenga nuestra máquina virtual
+igual que lo haríamos de nuestra imagen de Docker. Nuestro archivo queda tal que
+así y podemos verlo
+[aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/Vagrantfile):
+```ruby
+# Para este archivo de configuración de Vagrant, usaremos la versión 2
+# Por ahora se hace únicamente en local, por lo que por defecto se hará uso de
+# VirtualBox. Como es lo que queremos utilizar no nos preocupa. Más adelante
+# cuando queramos hacer despliegue en la nube, nos preocuparemos por añadir
+# nuevas directivas sobre esto.
+Vagrant.configure("2") do |config|
+  # Se ha elegido la imagen oficial Ubuntu 18.04 LTS (Bionic). En la
+  # documentación se dan más detalles sobre la elección de esta imagen en lugar
+  # de otras.
+  config.vm.box = "ubuntu/bionic64"
+
+  # Le damos un hostname a la máquina virtual
+  config.vm.hostname = "alreadycracked"
+
+  # Vagrant comprobará si hay actualizaciones cada vez que se levanta la máquina
+  # virtual. Si se encuentra una actualización, se informa al usuario.
+  config.vm.box_check_update = true
+
+  # Mapeamos el puerto 9292 de nuestra maquina con el puerto 9292 de la máquina
+  # virtual. De esta forma podremos acceder de manera cómoda a nuestra API a
+  # través de localhost
+  config.vm.network "forwarded_port", guest: 9292, host: 9292
+
+  # No necesitamos un directorio compartido para pasar los archivos ya que
+  # usaremos git. Para evitar diversos problemas de seguridad, desactivaremos
+  # /vagrant ya que se encuentra activa por defecto.
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # Como estamos trabajando con una máquina Linux, establecemos que usaremos ssh
+  # para comunicarnos. 
+  config.vm.communicator = "ssh"
+
+end
+```
+Vagrant da la opción de especificar un playbook de Ansible para hacer el
+aprovisionamiento de manera automática con la creación de la máquina (y cada vez
+que la levantamos). No obstante, como hemos añadido las órdenes para
+crear/levantar la máquina y para aprovisionar por separado, no nos combiene que
+se realice directamente el aprovisionamiento, sino queremos poder decidirlo por
+nosotros mismos.
+
+También comentar que hemos usado Ubuntu Bionic 64 bits. El motivo es que es LTS
+y tiene soporte para todas las herramientas que queremos usar (rbenv).
+
+### Ansible
+Para Ansible necesitamos tres archivos. En primer lugar un archivo de
+configuración. Aquí especificamos que no compruebe la clave para no tener
+problemas cuando reconstruimos una máquina, y el inventario que tomará para
+saber a qué maquinas tiene acceso. El archivo podemos verlo
+[aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/ansible.cfg) y es el
+siguiente:
+```cfg
+[defaults]
+host_key_checking = False
+inventory = ./ansible_hosts
+```
+
+Nuestro inventario podemos encontrarlo 
+[aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/ansible_hosts) 
+y queda de la siguiente manera:
+```cnf
+# alreadycracked usa una máquina basada en Ubuntu Bionic (LTS) 64b. Ya no trae
+# por defecto python2, por lo que debemos especificar el path hacia python3
+
+[vagrantboxes]
+alreadycracked ansible_ssh_port=2222 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key ansible_python_interpreter=/usr/bin/python3
+
+[vagrantboxes:vars]
+ansible_ssh_host=127.0.0.1
+ansible_ssh_user=vagrant
+```
+
+Como estamos usando una máquina local y le indiciamos a Vagrant que mapee el
+puerto 2222 de nuestro host con el 22 de la máquina virtual, le indicamos a
+Ansible que para conectarse a la máquina `alreadycracked` debe hacerlo a través
+de `localhost` por el puesto especificado. Es importante, como mencionamos en el
+archivo, especificar el PATH a python3 si el sistema no tiene python2 instalado.
+
+Por último necesitamos nuestro playbook de Ansible que podemos ver 
+[aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/provision/playbook.yml).
+Es el siguiente:
+```yaml
+# Playbook de Ansible que utilizamos para provisionar nuestra máquina virtual.
+- hosts: alreadycracked
+  # A partir de aquí, vamos definiendo las tareas que se realizarán en orden
+  tasks:
+    # Creamos un grupo al que pertenecerán los dos usuarios relacionados con
+    # nuestra aplicación
+  - name: 'Crear grupo alreadycracked'
+    become: true
+    group:
+      name: alreadycracked
+      state: present
+
+    # alreadycracked-dev será el usuario con el que añadiremos los archivos para
+    # nuestra aplicación
+  - name: 'Crear usuario desarrollador'
+    become: true
+    user:
+      name: alreadycracked-dev
+      group: alreadycracked
+      shell: /bin/bash
+      state: present
+
+    # Añado la clave pública del usuario que corre el script para que pueda
+    # conectarse por SSH como el usuario alreadycracked-dev
+  - name: 'Añadir clave pública SSH com clave autorizada'
+    become: true
+    authorized_key:
+      user: alreadycracked-dev
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      manage_dir: yes
+      state: present
+
+    # alreadycracked será el usuario con privilegios mínimos y sin shell que
+    # ejecutará la aplicación
+  - name: 'Crear usuario aplicación'
+    become: true
+    user:
+      name: alreadycracked
+      group: alreadycracked
+      shell: /usr/sbin/nologin
+      home: /home/alreadycracked-dev/alreadycracked
+      create_home: no
+      system: yes
+      state: present
+
+    # En primer lugar debemos actualizar los repositorios por si hubiera nuevas
+    # versiones. A continuación, actualizamos aquellos paquetes para los cuales
+    # hemos encontrado una nueva versión. Como estamos en un SO LTS, la gran
+    # parte serán actualizaciones de seguridad y no nos preocupa que la máquina
+    # se rompa
+  - name: 'Actualizar repositorios y paquetes'
+    become: true
+    apt:
+      update_cache: yes
+      upgrade: safe
+
+    # Para instalar nuestra aplicación necesitamos git para clonar nuestro
+    # repositorio y rbenv para montar nuestro entorno de desarrollo de ruby. De
+    # esta manera podremos elegir la versión que queramos del lenguaje.
+  - name: 'Instalar herramientas de desarrollo'
+    become: true
+    apt:
+      name:
+        - git
+        - rbenv
+
+    # Clonamos nuestro proyecto en el home del desarrollador. Como pertenecen al
+    # mismo grupo y el umask lo permite, el usuario sistema podrá leer más
+    # adelante, en el despliegue, estos archivos
+  - name: 'Clonar proyecto'
+    become: true
+    become_user: alreadycracked-dev
+    git:
+      repo: 'https://github.com/AlvaroGarciaJaen/alreadycracked.git'
+      dest: '/home/alreadycracked-dev/alreadycracked/'
+      force: yes
+
+    # Para utilizar rbenv, necesitamos la linea que se indica en esta tarea en
+    # .bashrc. Esto nos cambia el path para ejecutar las versiones adecuadas.
+    # Nos aseguramos de que se encuentra la linea.
+  - name: 'Comprobar si se inicialzia rbenv'
+    become: true
+    become_user: alreadycracked-dev
+    lineinfile:
+      path: ~/.bashrc
+      line: 'eval "$(rbenv init -)"'
+      create: yes
+
+    # Necesitamos crear el directorio de plugins en nuestra raiz de rbenv para
+    # poder instalar ruby-build y tener acceso a más versiones.
+  - name: 'Crear carpeta para plugins'
+    become: true
+    become_user: alreadycracked-dev
+    file:
+      path: ~/.rbenv/plugins
+      state: directory
+
+    # Clonamos ruby-build en nuestro directorio de plugins de rbenv.
+  - name: 'Clonar proyecto'
+    become: true
+    become_user: alreadycracked-dev
+    git:
+      repo: 'https://github.com/rbenv/ruby-build.git'
+      dest: ~/.rbenv/plugins/ruby-build
+      force: yes
+  
+    # Instalamos la versión 2.6.5 de ruby que es la que estamos usando para este
+    # proyecto. Si está ya instalada, no la reinstalamos para salvar tiempo.
+  - name: 'Instalar ruby 2.6.5'
+    become: true
+    become_user: alreadycracked-dev
+    command: rbenv install -s 2.6.5
+
+    # Se establece para alreadycracked-dev que por defecto se usará la version
+    # 2.6.5 de ruby que hemos instalado anteriormente.
+  - name: 'Establecer por defecto ruby 2.6.5'
+    become: true
+    become_user: alreadycracked-dev
+    command: rbenv global 2.6.5
+
+    # Para el proyecto se ha usado la version 2 de bundler, por lo que antes de
+    # instalar el resto de gemas debemos actualizarlo. Es importante establecer
+    # la ruta correcta a gem, puesto que no estamos usando la del sistema, sino
+    # la instalada con rbenv.
+  - name: 'Actualizar bundle'
+    become: true
+    become_user: alreadycracked-dev
+    gem:
+      name: bundler
+      executable: ~/.rbenv/versions/2.6.5/bin/gem
+      version: 2
+
+    # Dejamos instaladas las gemas para que, al hacer el despliegue, solo falte
+    # iniciar el servicio. En esta tarea es importante ejecutar bash -ci.
+    # Queremos usar rake pero no el del sistema, sino el del entorno que hemos
+    # instalado anteriormente. El $PATH se modifica en .bashrc, que solo se lee
+    # cuando una shell es interactiva. Por tanto, para usar el rake que queremos
+    # nosotros, debemos idear el cómo hacer que Ansible no obvie .bashrc al
+    # ejecutar nuestro comando. El problema es que cuando Ansible ejecuta, no lo
+    # hace de manera interactiva, por lo que debemos especificarlo nosotros con
+    # el flag -i.
+  - name: 'Instalar gemas'
+    become: true
+    become_user: alreadycracked-dev
+    become_flags: -i
+    command: bash -ci "rake install"
+    args:
+      chdir: ~/alreadycracked
+```
+A continuación se explica más detalladamente la creación de usuarios para la
+máquina virtual:
+
+Cuando tenemos una máquina pensada para producción, lo ideal es tener tres tipos
+de usuarios:
+-   Un usuario con permisos para hacer acciones privilegiadas con sudo (nunca
+    root). De esta manera, se pueden instalar paquetes necesarios y realizar
+    tareas de administración.
+-   Un usuario con permisos mínimos pensado para el desarrollador de la
+    aplicación. Tendrá permisos para leer y escribir sobre el directorio de
+    trabajo de la aplicación y poco más.
+-   Un usuario sin shell que únicamente se utilizará para ejecutar la
+    aplicación. Solo tendrá permisos para leer, nunca para modificar.
+
+La idea detrás de esto es que, si en algún momento nuestra aplicación tiene una
+vulnerabilidad y consiguen RCE (Remote Code Execution) en nuestra máquina, se
+busca que el daño que pueda hacerse sea mínimo. Además, si mantenemos
+actualizada nuestra máquina con los últimos parches de seguridad y los usuarios
+(el administrador y el desarrollador) siguen unas buenas prácticas de seguridad,
+se hace muy complicado que un atacante pueda, despues de haber ganado una shell
+con RCE, realizar un escalado de privilegios.
+
+En este punto, la máquina tiene instalado todo lo necesario (gemas incluidas)
+para ejecutar la aplicación. El siguiente paso será hacer uso de
+[Capistrano](https://capistranorb.com/) para realizar el despliegue.
