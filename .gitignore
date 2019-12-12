@@ -55,3 +55,4 @@ build-iPhoneSimulator/
 alreadycracked.pid
 .vagrant
 *.log
+provision/playbook.retry
