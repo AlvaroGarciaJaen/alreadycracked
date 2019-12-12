@@ -97,6 +97,15 @@
   - name: 'Instalar gemas'
     become: true
     become_user: alreadycracked-dev
-    command: rake install
+    become_flags: -i
+    shell: bash -ci "rake install"
+    args:
+      chdir: ~/alreadycracked
+
+  - name: 'Iniciar servicio'
+    become: true
+    become_user: alreadycracked-dev
+    become_flags: -i
+    shell: bash -ci "rake init"
     args:
       chdir: ~/alreadycracked
