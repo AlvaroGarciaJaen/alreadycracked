@@ -154,6 +154,26 @@ task :purge_heroku do
   sh "bash scripts/heroku-purge.sh"
 end
 
+desc "Create/start VM with Vagrant"
+task :start_vm do
+  sh "vagrant up"
+end
+
+desc "Poweroff VM with Vagrant"
+task :poweroff_vm do
+  sh "vagrant halt"
+end
+
+desc "Destroy VM with Vagrant"
+task :destroy_vm do
+  sh "vagrant destroy -f"
+end
+
+desc "Provision of VM with Ansible"
+task :provision_vm do
+  sh "ansible-playbook provision/playbook.yml"
+end
+
 task :default => :init
 ```
 
@@ -193,6 +213,9 @@ nuestro servicio funciona correctamente.
 Se ejecutan únicamente los tests funcionales para comprobar que la API REST
 funciona correctamente. 
 
+Se ha decidido dar la posibilidad de ejecutar los tests por separado para
+aprovechar el uso de las dos plataformas de CI.
+
 -   `rake deploy_az`: Lanza el despliegue en el PaaS de Azure
 
 Para hacerlo más sencillo, se da la posibilidad de llamar desde aquí
@@ -212,8 +235,17 @@ También damos la opción hacer el despliegue con Heroku
 Igual que se hace el despliegue, también se puede volver atrás deshaciendo todo
 lo creado.
 
-Se ha decidido dar la posibilidad de ejecutar los tests por separado para
-aprovechar el uso de las dos plataformas de CI.
+-   `rake start_vm`: Crea la máquina virtual (o la inicia si ya está creada)
+    usando Vagrant
+
+-   `rake poweroff_vm`: Apaga la máquina virtual creada por Vagrant
+
+-   `rake destroy_vm`: Destruye la máquina virtual creada por Vagrant
+
+-   `rake provision_vm`: Aprovisiona la máquina usando el playbook de Ansible
+
+Para más información en cuanto a estas órdenes, consultar 
+'[Creación de VM y aprovisionamiento](#creación-de-vm-y-aprovisionamiento)'
 
 ## Integración continua
 Para implementar una correcta integración continua debemos hacer un desarrollo
@@ -757,7 +789,7 @@ problemas cuando reconstruimos una máquina, y el inventario que tomará para
 saber a qué maquinas tiene acceso. El archivo podemos verlo
 [aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/ansible.cfg) y es el
 siguiente:
-```cfg
+```config
 [defaults]
 host_key_checking = False
 inventory = ./ansible_hosts
@@ -766,7 +798,7 @@ inventory = ./ansible_hosts
 Nuestro inventario podemos encontrarlo 
 [aquí](https://github.com/AlvaroGarciaJaen/alreadycracked/blob/master/ansible_hosts) 
 y queda de la siguiente manera:
-```cnf
+```config
 # alreadycracked usa una máquina basada en Ubuntu Bionic (LTS) 64b. Ya no trae
 # por defecto python2, por lo que debemos especificar el path hacia python3
 
