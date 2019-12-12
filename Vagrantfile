@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
   # Mapeamos el puerto 8080 de nuestra maquina con el puerto 80 de la máquina
   # virtual. De esta forma podremos acceder de manera cómoda a nuestra API a
   # través de localhost
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 9292, host: 9292
 
   config.vm.network "public_network", bridge: "enp2s0", ip: "192.168.1.252"
 
