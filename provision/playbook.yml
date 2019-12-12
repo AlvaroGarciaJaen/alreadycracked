@@ -1,0 +1,102 @@
+- hosts: alreadycracked
+  vars:
+  tasks:
+  - name: 'Crear grupo alreadycracked'
+    become: true
+    group:
+      name: alreadycracked
+      state: present
+
+  - name: 'Crear usuario desarrollador'
+    become: true
+    user:
+      name: alreadycracked-dev
+      group: alreadycracked
+      shell: /bin/bash
+      state: present
+
+  - name: 'Crear usuario aplicación'
+    become: true
+    user:
+      name: alreadycracked
+      group: alreadycracked
+      shell: /usr/sbin/nologin
+      home: /home/alreadycracked-dev/alreadycracked
+      create_home: no
+      system: yes
+      state: present
+
+  - name: 'Actualizar repositorios y paquetes'
+    become: true
+    apt:
+      update_cache: yes
+      upgrade: safe
+
+  - name: 'Instalar herramientas de desarrollo'
+    become: true
+    apt:
+      name:
+        - git
+        - rbenv
+
+  - name: 'Clonar proyecto'
+    become: true
+    become_user: alreadycracked-dev
+    git:
+      repo: 'https://github.com/AlvaroGarciaJaen/alreadycracked.git'
+      dest: '/home/alreadycracked-dev/alreadycracked/'
+      force: yes
+
+  - name: 'Comprobar si se inicialzia rbenv'
+    become: true
+    become_user: alreadycracked-dev
+    lineinfile:
+      path: ~/.bashrc
+      line: 'eval "$(rbenv init -)"'
+      create: yes
+
+  - name: 'Crear carpeta para plugins'
+    become: true
+    become_user: alreadycracked-dev
+    file:
+      path: ~/.rbenv/plugins
+      state: directory
+
+  - name: 'Clonar proyecto'
+    become: true
+    become_user: alreadycracked-dev
+    git:
+      repo: 'https://github.com/rbenv/ruby-build.git'
+      dest: ~/.rbenv/plugins/ruby-build
+      force: yes
+  
+  - name: 'Instalar ruby 2.6.5'
+    become: true
+    become_user: alreadycracked-dev
+    command: rbenv install -s 2.6.5
+
+  - name: 'Establecer por defecto ruby 2.6.5'
+    become: true
+    become_user: alreadycracked-dev
+    command: rbenv global 2.6.5
+
+  - name: 'Actualizar bundle'
+    become: true
+    become_user: alreadycracked-dev
+    gem:
+      name: bundler
+      executable: ~/.rbenv/versions/2.6.5/bin/gem
+      version: 2
+
+#  - name: 'Instalar gemas'
+#    become: true
+#    become_user: alreadycracked-dev
+#    bundler:
+#      gemfile: ~/alreadycracked/Gemfile
+
+  - name: 'Instalar gemas'
+    become: true
+    become_user: alreadycracked-dev
+    command: rake install
+    args:
+      chdir: ~/alreadycracked
