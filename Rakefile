@@ -58,4 +58,24 @@ task :purge_heroku do
   sh "bash scripts/heroku-purge.sh"
 end
 
+desc "Create/start VM with Vagrant"
+task :start_vm do
+  sh "vagrant up"
+end
+
+desc "Poweroff VM with Vagrant"
+task :poweroff_vm do
+  sh "vagrant halt"
+end
+
+desc "Destroy VM with Vagrant"
+task :destroy_vm do
+  sh "vagrant destroy -f"
+end
+
+desc "Provision of VM with Ansible"
+task :provision_vm do
+  sh "ansible-playbook provision/playbook.yml"
+end
+
 task :default => :init
